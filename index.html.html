@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fifty+ | Proposta Profissional</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #D42B2B; --red-dark: #AA2020; --red-light: #FFF0F0;
+  --bg: #F0F0F0; --surface: #FFFFFF; --surface2: #F7F7F7;
+  --border: #E2E2E2; --text: #1A1A1A; --text2: #5A5A5A; --text3: #9A9A9A;
+  --green: #1A7A4A; --green-bg: #E6F4ED; --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D0A0A 100%); padding: 20px;
+}
+.login-box {
+  background: white; border-radius: 20px; padding: 40px 36px;
+  width: 100%; max-width: 400px; box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+.login-logo { font-size: 32px; font-weight: 700; color: var(--red); text-align: center; margin-bottom: 6px; letter-spacing: -1px; }
+.login-logo span { font-weight: 300; }
+.login-sub { text-align: center; font-size: 13px; color: var(--text3); margin-bottom: 32px; }
+.login-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; margin-top: 14px; }
+.login-input {
+  width: 100%; padding: 13px 15px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: all 0.2s;
+  background: var(--surface2);
+}
+.login-input:focus { border-color: var(--red); background: white; }
+.login-btn {
+  width: 100%; padding: 14px; background: var(--red); color: white; border: none;
+  border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 22px; transition: all 0.18s; letter-spacing: 0.2px;
+}
+.login-btn:hover { background: var(--red-dark); transform: translateY(-1px); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.login-err { background: #FFF0F0; border: 1px solid #FFB3B3; color: var(--red); font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-top: 14px; display: none; }
+.login-forgot { text-align: center; margin-top: 14px; font-size: 13px; color: var(--text3); cursor: pointer; }
+.login-forgot:hover { color: var(--red); }
+.login-switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text2); }
+.login-switch a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: none; }
+
+/* ── NAV ── */
+#appScreen { display: none; }
+nav {
+  background: white; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 58px; position: sticky; top: 0; z-index: 200;
+}
+.nav-logo { font-size: 21px; font-weight: 700; color: var(--red); letter-spacing: -0.5px; }
+.nav-logo span { font-weight: 300; }
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab {
+  padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; color: var(--text3); transition: all 0.18s; border: none;
+  background: none; font-family: 'DM Sans', sans-serif;
+}
+.nav-tab:hover { color: var(--text2); background: var(--bg); }
+.nav-tab.active { color: var(--red); background: var(--red-light); }
+.nav-user {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2);
+}
+.nav-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--red);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.btn-logout {
+  font-size: 12px; color: var(--text3); cursor: pointer; padding: 5px 8px;
+  border-radius: 6px; transition: all 0.18s; border: none; background: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-logout:hover { color: var(--red); background: var(--red-light); }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 700px; margin: 0 auto; padding: 28px 16px 80px; }
+.page { display: none; animation: up 0.28s ease; }
+.page.active { display: block; }
+@keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.sec-head { margin-bottom: 22px; }
+.sec-head h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px; }
+.sec-head p { font-size: 14px; color: var(--text2); }
+
+/* ── CARDS ── */
+.card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; transition: border-color 0.2s; }
+.card:focus-within { border-color: var(--red); }
+.card-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--red); margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
+
+/* ── FORM ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+input, select, textarea {
+  width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+  background: var(--surface2); transition: all 0.18s; outline: none; appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--red); background: white; }
+input::placeholder, textarea::placeholder { color: var(--text3); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* ── LOGO UPLOAD ── */
+.logo-area { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); position: relative; }
+.logo-area:hover { border-color: var(--red); background: #FFF5F5; }
+.logo-area img { max-height: 70px; max-width: 180px; object-fit: contain; border-radius: 4px; }
+.logo-area .placeholder { font-size: 13px; color: var(--text3); }
+.logo-area .placeholder span { display: block; font-size: 28px; margin-bottom: 4px; }
+#logoInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ── CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { border: 1.5px solid var(--border); border-radius: 7px; padding: 7px 13px; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--surface2); color: var(--text2); transition: all 0.18s; user-select: none; }
+.chip:hover { border-color: var(--red); }
+.chip.on { border-color: var(--red); background: var(--red-light); color: var(--red); font-weight: 600; }
+
+/* ── MOVEL GRID ── */
+.movel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.movel-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 13px 8px; cursor: pointer; text-align: center; background: var(--surface2); transition: all 0.18s; user-select: none; }
+.movel-card:hover { border-color: var(--red); background: #FFF8F8; }
+.movel-card.on { border-color: var(--red); background: var(--red-light); }
+.movel-card .mi { font-size: 24px; margin-bottom: 5px; }
+.movel-card .ml { font-size: 12px; font-weight: 600; color: var(--text2); }
+.movel-card.on .ml { color: var(--red); }
+
+/* ── MEDIDAS ── */
+.medida-item { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.medida-item input { width: 65px; flex: none; padding: 8px 10px; font-size: 13px; }
+.medida-item .mi-unit { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.btn-add-medida { display: flex; align-items: center; gap: 6px; justify-content: center; width: 100%; padding: 10px; border: 1.5px dashed var(--border); border-radius: 9px; background: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text3); cursor: pointer; transition: all 0.18s; margin-top: 4px; }
+.btn-add-medida:hover { border-color: var(--red); color: var(--red); }
+
+/* ── PGTO ── */
+.pgto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pgto-card { border: 1.5px solid var(--border); border-radius: 9px; padding: 12px; cursor: pointer; background: var(--surface2); transition: all 0.18s; user-select: none; text-align: center; }
+.pgto-card:hover { border-color: var(--red); }
+.pgto-card.on { border-color: var(--red); background: var(--red-light); }
+.pgto-card .pi { font-size: 20px; margin-bottom: 4px; }
+.pgto-card .pl { font-size: 12px; font-weight: 600; color: var(--text2); }
+.pgto-card.on .pl { color: var(--red); }
+
+/* ── STEPS ── */
+.steps-bar { display: flex; gap: 4px; align-items: center; margin-bottom: 22px; overflow-x: auto; padding-bottom: 4px; }
+.step-dot { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text3); transition: all 0.2s; white-space: nowrap; }
+.step-dot.active { color: var(--red); }
+.step-dot.done { color: var(--green); }
+.step-dot .sd { width: 22px; height: 22px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
+.step-dot.active .sd { background: var(--red); color: white; }
+.step-dot.done .sd { background: var(--green); color: white; }
+.step-line { width: 20px; height: 1.5px; background: var(--border); flex-shrink: 0; }
+
+/* ── BTNS ── */
+.btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 14px; border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all 0.18s; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary { background: var(--red); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--red-dark); transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--text2); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--red); color: var(--red); }
+.btn-green { background: #1A7A4A; color: white; }
+.btn-green:hover { background: #155f3a; }
+.btn-whatsapp { background: #25D366; color: white; }
+.btn-whatsapp:hover { background: #1EB855; }
+.btn-row { display: flex; gap: 10px; margin-top: 6px; }
+.btn-row .btn { flex: 1; }
+
+/* ── FOTO UPLOAD ── */
+.foto-upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; background: var(--surface2); transition: all 0.2s; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+.foto-upload-area:hover { border-color: var(--red); background: #FFF8F8; }
+.foto-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; width: 100%; }
+.foto-thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 2px solid var(--border); cursor: pointer; transition: all 0.2s; }
+.foto-thumb:hover { border-color: var(--red); transform: scale(1.05); }
+.foto-add-more { width: 72px; height: 72px; border-radius: 8px; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; background: var(--surface2); color: var(--text3); transition: all 0.2s; }
+.foto-add-more:hover { border-color: var(--red); color: var(--red); }
+
+/* ── PREVIEW ── */
+.preview-box { background: white; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
+.preview-header { background: var(--red); color: white; padding: 22px 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+.preview-header h2 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.preview-header p { font-size: 12px; opacity: 0.8; }
+.preview-logo-box { background: white; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: center; min-width: 80px; min-height: 40px; }
+.preview-logo-box img { max-height: 36px; max-width: 100px; object-fit: contain; }
+.preview-logo-box .logo-text { font-size: 13px; font-weight: 700; color: var(--red); }
+.preview-body { padding: 20px 24px; }
+.pv-section { margin-bottom: 16px; }
+.pv-section h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.pv-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #F5F5F5; }
+.pv-row:last-child { border-bottom: none; }
+.pv-row .pk { color: var(--text2); }
+.pv-row .pv { font-weight: 600; color: var(--text); text-align: right; max-width: 55%; }
+.total-stripe { background: #1A1A1A; color: white; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.total-stripe .tl { font-size: 11px; font-weight: 600; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+.total-stripe .tv { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; color: #FF5555; }
+.pgto-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pgto-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--text2); }
+.footer-stripe { background: var(--surface2); border-top: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+.footer-stripe .fs-left { font-size: 11px; color: var(--text3); }
+.footer-stripe .fs-brand { font-weight: 700; color: var(--red); }
+.med-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.med-table th { background: var(--surface2); padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); border-bottom: 1px solid var(--border); }
+.med-table td { padding: 7px 10px; border-bottom: 1px solid #F5F5F5; }
+
+/* ── BANCO DE PROPOSTAS ── */
+.propostas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.propostas-header h1 { font-size: 22px; font-weight: 700; }
+.btn-nova { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: var(--red); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; }
+.btn-nova:hover { background: var(--red-dark); }
+.proposta-card {
+  background: white; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.proposta-card:hover { border-color: var(--red); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.pc-left {}
+.pc-num { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.pc-cliente { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.pc-tipo { font-size: 13px; color: var(--text2); }
+.pc-right { text-align: right; }
+.pc-total { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: var(--red); }
+.pc-data { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.pc-actions { display: flex; gap: 6px; margin-top: 8px; justify-content: flex-end; }
+.pc-btn { padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text2); transition: all 0.18s; font-family: 'DM Sans', sans-serif; }
+.pc-btn:hover { border-color: var(--red); color: var(--red); }
+.pc-btn.danger:hover { border-color: #CC0000; color: #CC0000; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-state .ei { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; }
+.loading-state { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+
+/* ── STATUS BADGE ── */
+.status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.status-ativa { background: var(--green-bg); color: var(--green); }
+.status-enviada { background: #E8F0FF; color: #2B5FD4; }
+.status-fechada { background: #F0F0F0; color: var(--text3); }
+
+/* ── SEARCH ── */
+.search-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+.search-bar input { flex: 1; }
+.search-bar select { width: 150px; flex: none; }
+
+/* ── MODAL CONFIRM ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: white; border-radius: 16px; padding: 28px; max-width: 380px; width: 100%; }
+.modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal-box p { font-size: 14px; color: var(--text2); margin-bottom: 22px; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btns .btn { flex: 1; padding: 12px; }
+.btn-danger { background: #CC1111; color: white; }
+.btn-danger:hover { background: #AA0000; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(70px); background: #1A1A1A; color: white; padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; transition: transform 0.28s ease; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── PROFILE SAVED ── */
+.profile-saved { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--green-bg); border: 1px solid #A0D4B8; border-radius: 10px; margin-bottom: 16px; }
+.profile-saved .ps-text { font-size: 13px; color: var(--green); font-weight: 600; }
+
+@media (max-width: 500px) {
+  .g2, .g3 { grid-template-columns: 1fr 1fr; }
+  .movel-grid { grid-template-columns: repeat(3, 1fr); }
+  .pgto-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 0 12px; }
+  .nav-tab { padding: 6px 8px; font-size: 11px; }
+  .nav-user .name-hide { display: none; }
+  .preview-body { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Fifty<span>+</span></div>
+    <div class="login-sub">Sistema de Propostas para Marceneiros</div>
+
+    <div id="loginForm">
+      <span class="login-label">E-mail</span>
+      <input class="login-input" type="email" id="loginEmail" placeholder="seu@email.com">
+      <span class="login-label">Senha</span>
+      <input class="login-input" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="login-err" id="loginErr"></div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Entrar</button>
+      <div class="login-forgot" onclick="showForgot()">Esqueci minha senha</div>
+      <div style="text-align:center;margin-top:20px;font-size:12px;color:#9A9A9A;line-height:1.6;">Acesso exclusivo para clientes.<br>Adquira o acesso em <strong style="color:#D42B2B;">fiftymais.com.br</strong></div>
+    </div>
+
+    <div id="forgotForm" style="display:none">
+      <span class="login-label">E-mail cadastrado</span>
+      <input class="login-input" type="email" id="forgotEmail" placeholder="seu@email.com">
+      <div class="login-err" id="forgotErr"></div>
+      <button class="login-btn" id="forgotBtn" onclick="doForgot()">Enviar link de recuperação</button>
+      <div class="login-switch"><a onclick="showLogin()">← Voltar ao login</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="appScreen">
+<nav>
+  <div class="nav-logo">Fifty<span>+</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('propostas')">📋 Propostas</button>
+    <button class="nav-tab" onclick="showPage('orcamento')">➕ Nova</button>
+    <button class="nav-tab" onclick="showPage('perfil')">⚙️ Perfil</button>
+  </div>
+  <div class="nav-user">
+    <div class="nav-avatar" id="navAvatar">J</div>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ===================== PÁGINA: PROPOSTAS ===================== -->
+<div class="page active" id="page-propostas">
+  <div class="propostas-header">
+    <div>
+      <h1>Minhas Propostas</h1>
+      <p style="font-size:13px; color:var(--text3); margin-top:2px;" id="totalPropostas">Carregando...</p>
+    </div>
+    <button class="btn-nova" onclick="novaPropostа()">
+      + Nova Proposta
+    </button>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar por cliente ou tipo..." oninput="filtrarPropostas()">
+    <select id="filterStatus" onchange="filtrarPropostas()">
+      <option value="">Todas</option>
+      <option value="ativa">Ativas</option>
+      <option value="enviada">Enviadas</option>
+      <option value="fechada">Fechadas</option>
+    </select>
+  </div>
+
+  <div id="propostasList">
+    <div class="loading-state">⏳ Carregando propostas...</div>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: ORÇAMENTO ===================== -->
+<div class="page" id="page-orcamento">
+  <div class="sec-head">
+    <h1 id="orcTitle">Nova Proposta</h1>
+    <p>Preencha os dados do serviço para gerar a proposta.</p>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-dot active" id="sd1"><div class="sd">1</div><span>Cliente</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd2"><div class="sd">2</div><span>Móvel</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd3"><div class="sd">3</div><span>Medidas</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd4"><div class="sd">4</div><span>Valores</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd5"><div class="sd">5</div><span>Pagamento</span></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-page active" id="step1">
+    <div class="card">
+      <div class="card-head">👤 Dados do Cliente</div>
+      <div class="g2">
+        <div class="field"><label>Nome Completo</label><input type="text" id="c-nome" placeholder="Ex: Maria Fernanda Santos"></div>
+        <div class="field"><label>WhatsApp</label><input type="tel" id="c-wpp" placeholder="(98) 99999-9999"></div>
+      </div>
+      <div class="field"><label>Endereço / Local do Trabalho</label><input type="text" id="c-end" placeholder="Ex: Rua das Flores, 123 - São Luís, MA"></div>
+      <div class="field"><label>Referência ou complemento</label><input type="text" id="c-ref" placeholder="Ex: Apto 302, portão azul..."></div>
+    </div>
+    <button class="btn btn-primary" onclick="goStep(2)">Próximo: Tipo de Móvel →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-page" id="step2" style="display:none">
+    <div class="card">
+      <div class="card-head">🪑 Tipo de Móvel</div>
+      <div class="movel-grid" id="movelGrid">
+        <div class="movel-card on" onclick="selectMovel(this,'Cozinha Planejada')"><div class="mi">🍳</div><div class="ml">Cozinha</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Guarda-Roupa')"><div class="mi">🚪</div><div class="ml">Guarda-Roupa</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Home Office')"><div class="mi">💻</div><div class="ml">Home Office</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Closet')"><div class="mi">👔</div><div class="ml">Closet</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Banheiro')"><div class="mi">🚿</div><div class="ml">Banheiro</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Rack / Painel TV')"><div class="mi">📺</div><div class="ml">Rack/Painel</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Quarto Infantil')"><div class="mi">🧸</div><div class="ml">Infantil</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Área de Serviço')"><div class="mi">🧺</div><div class="ml">Área Serviço</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Móvel Sob Medida')"><div class="mi">📐</div><div class="ml">Sob Medida</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">🎨 Material e Acabamento</div>
+      <div class="field">
+        <label>Chapa Principal</label>
+        <div class="chips" id="chapas">
+          <div class="chip on" onclick="toggleChip(this,'chapas')">MDF 15mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">MDF 18mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">MDP 15mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">Compensado</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">Madeira Maciça</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Acabamento</label>
+        <div class="chips" id="acabs">
+          <div class="chip on" onclick="toggleChip(this,'acabs')">BP Comum</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">BP Premium</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Lacca Fosco</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Lacca Brilho</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Madeira Natural</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">PVC</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ferragens</label>
+        <div class="chips" id="ferragens">
+          <div class="chip on" onclick="toggleChip(this,'ferragens')">Básico</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Intermediário</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Importado</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Blum / Hafele</div>
+        </div>
+      </div>
+      <div class="field"><label>Detalhes adicionais</label><textarea id="m-detalhes" rows="2" placeholder="Ex: Puxadores pretos, 3 gavetas na base..."></textarea></div>
+      <div class="field">
+        <label>📷 Fotos de Referência (opcional)</label>
+        <div class="foto-upload-area" id="fotoUploadArea" onclick="document.getElementById('fotosInput').click()">
+          <input type="file" id="fotosInput" accept="image/*" multiple style="display:none" onchange="loadFotos(this)">
+          <div id="fotoPlaceholder"><div style="font-size:26px;margin-bottom:4px;">📷</div><div style="font-size:13px;color:var(--text3);">Clique para adicionar fotos de referência</div></div>
+          <div id="fotoGrid" class="foto-grid" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Próximo: Medidas →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-page" id="step3" style="display:none">
+    <div class="card">
+      <div class="card-head">📐 Medidas dos Móveis</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Adicione cada peça separado. Medidas em metros.</p>
+      <div id="medidasList"></div>
+      <button class="btn-add-medida" onclick="addMedida()">+ Adicionar peça / ambiente</button>
+    </div>
+    <div class="card">
+      <div class="card-head">📅 Prazo de Entrega</div>
+      <div class="g2">
+        <div class="field"><label>Início Previsto</label><input type="date" id="m-inicio"></div>
+        <div class="field"><label>Entrega Prevista</label><input type="date" id="m-entrega"></div>
+      </div>
+      <div class="field"><label>Observação sobre prazo</label><input type="text" id="m-prazo-obs" placeholder="Ex: Prazo conta após aprovação do projeto"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Próximo: Valores →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-page" id="step4" style="display:none">
+    <div class="card">
+      <div class="card-head">💰 Seus Custos <span style="font-weight:400;color:var(--text3);font-size:10px;text-transform:none;letter-spacing:0;">🔒 Visível só para você</span></div>
+      <div style="background:#FFF8E6;border:1px solid #F0D080;border-radius:8px;padding:10px 13px;font-size:12px;color:#7A5A00;margin-bottom:14px;">
+        ⚠️ O cliente verá <strong>apenas o valor total final</strong>. Este detalhamento é interno.
+      </div>
+      <div class="field"><label>Materiais (R$)</label><input type="number" id="v-mat" placeholder="0,00" min="0" step="0.01" oninput="calcTotal()"></div>
+      <div class="field"><label>Mão de Obra (R$)</label><input type="number" id="v-mao" placeholder="0,00" min="0" step="0.01" oninput="calcTotal()"></div>
+      <div class="field"><label>Ferragens e Acessórios (R$)</label><input type="number" id="v-ferr" placeholder="0,00" min="0" step="0.01" oninput="calcTotal()"></div>
+      <div class="field"><label>Outros (frete, instalação, etc.) (R$)</label><input type="number" id="v-outros" placeholder="0,00" min="0" step="0.01" oninput="calcTotal()"></div>
+      <div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:4px;">
+        <label>Margem de Lucro (%)</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="number" id="v-margem" placeholder="0" min="0" max="200" step="1" value="30" oninput="calcTotal()" style="width:90px;flex:none;">
+          <div style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:11px 13px;font-size:14px;color:var(--text3);">
+            Margem: <strong id="v-margem-val" style="color:var(--red);">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;">Subtotal</span>
+          <span id="v-subtotal-preview" style="font-family:'DM Mono';font-size:14px;color:var(--text2);">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;font-weight:700;">TOTAL DO CLIENTE</span>
+          <span id="v-total-preview" style="font-family:'DM Mono';font-size:22px;font-weight:700;color:var(--red);">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">⚠️ Condições e Garantia</div>
+      <div class="field"><label>Garantia oferecida</label><input type="text" id="v-garantia" placeholder="Ex: 1 ano em ferragens, 6 meses em acabamento"></div>
+      <div class="field"><label>O que está incluso</label><textarea id="v-incluso" rows="2" placeholder="Ex: Projeto, material, mão de obra e instalação"></textarea></div>
+      <div class="field"><label>O que NÃO está incluso</label><textarea id="v-excluso" rows="2" placeholder="Ex: Eletrodomésticos, iluminação interna"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(3)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Próximo: Pagamento →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-page" id="step5" style="display:none">
+    <div class="card">
+      <div class="card-head">💳 Formas de Pagamento</div>
+      <div class="pgto-grid">
+        <div class="pgto-card on" onclick="togglePgto(this)"><div class="pi">💵</div><div class="pl">Dinheiro</div></div>
+        <div class="pgto-card on" onclick="togglePgto(this)"><div class="pi">📱</div><div class="pl">PIX</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">💳</div><div class="pl">Cartão Crédito</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">🏦</div><div class="pl">Transferência</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">📋</div><div class="pl">Cheque</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">🤝</div><div class="pl">Financiamento</div></div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="field"><label>Condição de pagamento</label><input type="text" id="pg-condicao" placeholder="Ex: 50% na aprovação + 50% na entrega"></div>
+        <div class="field"><label>Chave PIX (opcional)</label><input type="text" id="pg-pix" placeholder="CPF, telefone ou e-mail"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">📝 Observações Finais</div>
+      <textarea id="obs-final" rows="3" placeholder="Qualquer informação extra que o cliente precisa saber..."></textarea>
+    </div>
+    <button class="btn btn-green" id="btnSalvar" onclick="salvarProposta()">
+      💾 Salvar Proposta
+    </button>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: PREVIEW ===================== -->
+<div class="page" id="page-preview">
+  <div class="sec-head">
+    <h1>Proposta Gerada</h1>
+    <p>Revise, baixe o PDF ou envie direto ao cliente.</p>
+  </div>
+
+  <div class="preview-box" id="previewBox">
+    <div class="preview-header">
+      <div>
+        <h2 id="pv-titulo">Proposta de Serviço</h2>
+        <p id="pv-num">Nº 001</p>
+      </div>
+      <div class="preview-logo-box" id="pvLogoBox">
+        <div class="logo-text" id="pvLogoText">—</div>
+      </div>
+    </div>
+    <div class="preview-body">
+      <div class="pv-section">
+        <h3>Marceneiro</h3>
+        <div class="pv-row"><span class="pk">Nome</span><span class="pv" id="pv-marc-nome">—</span></div>
+        <div class="pv-row"><span class="pk">WhatsApp</span><span class="pv" id="pv-marc-wpp">—</span></div>
+        <div class="pv-row"><span class="pk">Cidade</span><span class="pv" id="pv-marc-cidade">—</span></div>
+        <div class="pv-row" id="pv-marc-insta-row"><span class="pk">Instagram</span><span class="pv" id="pv-marc-insta">—</span></div>
+      </div>
+      <div class="pv-section">
+        <h3>Cliente</h3>
+        <div class="pv-row"><span class="pk">Nome</span><span class="pv" id="pv-c-nome">—</span></div>
+        <div class="pv-row"><span class="pk">WhatsApp</span><span class="pv" id="pv-c-wpp">—</span></div>
+        <div class="pv-row"><span class="pk">Endereço</span><span class="pv" id="pv-c-end">—</span></div>
+        <div class="pv-row" id="pv-c-ref-row"><span class="pk">Referência</span><span class="pv" id="pv-c-ref">—</span></div>
+      </div>
+      <div class="pv-section">
+        <h3>Serviço</h3>
+        <div class="pv-row"><span class="pk">Tipo</span><span class="pv" id="pv-tipo">—</span></div>
+        <div class="pv-row"><span class="pk">Material</span><span class="pv" id="pv-mat">—</span></div>
+        <div class="pv-row"><span class="pk">Acabamento</span><span class="pv" id="pv-acab">—</span></div>
+        <div class="pv-row"><span class="pk">Ferragens</span><span class="pv" id="pv-ferr">—</span></div>
+        <div class="pv-row" id="pv-det-row"><span class="pk">Detalhes</span><span class="pv" id="pv-det">—</span></div>
+      </div>
+      <div class="pv-section" id="pv-med-section">
+        <h3>Medidas</h3>
+        <table class="med-table"><thead><tr><th>Peça / Ambiente</th><th>Largura</th><th>Altura</th><th>Profund.</th></tr></thead><tbody id="pv-med-body"></tbody></table>
+      </div>
+      <div class="pv-section">
+        <h3>Prazo</h3>
+        <div class="pv-row"><span class="pk">Início previsto</span><span class="pv" id="pv-inicio">—</span></div>
+        <div class="pv-row"><span class="pk">Entrega prevista</span><span class="pv" id="pv-entrega">—</span></div>
+        <div class="pv-row" id="pv-prazo-obs-row"><span class="pk">Observação</span><span class="pv" id="pv-prazo-obs">—</span></div>
+      </div>
+      <div class="total-stripe">
+        <div>
+          <div class="tl">Valor Total do Serviço</div>
+          <div style="font-size:11px;opacity:0.5;margin-top:2px;" id="pv-validade-txt">Válido por 15 dias</div>
+        </div>
+        <div class="tv" id="pv-total">R$ 0,00</div>
+      </div>
+      <div class="pv-section" style="margin-top:16px;">
+        <h3>Formas de Pagamento</h3>
+        <div class="pgto-pills" id="pv-pgto-pills"></div>
+        <div class="pv-row" style="margin-top:10px;" id="pv-condicao-row"><span class="pk">Condição</span><span class="pv" id="pv-condicao">—</span></div>
+        <div class="pv-row" id="pv-pix-row"><span class="pk">PIX</span><span class="pv" id="pv-pix">—</span></div>
+      </div>
+      <div class="pv-section">
+        <h3>Condições e Garantia</h3>
+        <div class="pv-row" id="pv-garantia-row"><span class="pk">Garantia</span><span class="pv" id="pv-garantia">—</span></div>
+        <div class="pv-row" id="pv-incluso-row"><span class="pk">Incluso</span><span class="pv" id="pv-incluso">—</span></div>
+        <div class="pv-row" id="pv-excluso-row"><span class="pk">Não incluso</span><span class="pv" id="pv-excluso">—</span></div>
+      </div>
+      <div id="pv-fotos-section" class="pv-section" style="display:none;"></div>
+      <div id="pv-obs-section" style="background:#FFF8E6;border:1px solid #F0D080;border-radius:9px;padding:12px 14px;font-size:13px;color:#7A5A00;margin-top:4px;line-height:1.5;display:none;">
+        <strong>📝 Observações:</strong> <span id="pv-obs"></span>
+      </div>
+      <div id="pv-rodape-section" style="background:#F5F5F5;border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--text3);margin-top:10px;line-height:1.5;display:none;">
+        <span id="pv-rodape"></span>
+      </div>
+    </div>
+    <div class="footer-stripe">
+      <div class="fs-left">Proposta gerada por <span class="fs-brand">Fifty+</span></div>
+      <div style="font-size:11px;color:var(--text3);" id="pv-footer-date">—</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <button class="btn btn-primary" onclick="gerarPDF()">📄 Baixar PDF</button>
+    <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar pelo WhatsApp
+    </button>
+    <button class="btn btn-outline" onclick="showPage('propostas')">← Voltar para Propostas</button>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: PERFIL ===================== -->
+<div class="page" id="page-perfil">
+  <div class="sec-head"><h1>Seu Perfil</h1><p>Cadastre uma vez. Vai aparecer em todas as propostas.</p></div>
+  <div id="profileSavedMsg" style="display:none">
+    <div class="profile-saved"><span style="font-size:20px;">✅</span><div class="ps-text">Perfil salvo com sucesso!</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">🪚 Dados da Marcenaria</div>
+    <div class="field"><label>Nome da Marcenaria</label><input type="text" id="p-nome" placeholder="Ex: Marcenaria do João Silva"></div>
+    <div class="g2">
+      <div class="field"><label>WhatsApp</label><input type="tel" id="p-wpp" placeholder="(98) 99999-9999"></div>
+      <div class="field"><label>Cidade / Estado</label><input type="text" id="p-cidade" placeholder="São Luís, MA"></div>
+    </div>
+    <div class="field"><label>Instagram (opcional)</label><input type="text" id="p-insta" placeholder="@marcenaria_joao"></div>
+    <div class="field"><label>Especialidade</label><input type="text" id="p-esp" placeholder="Ex: Móveis planejados residenciais"></div>
+  </div>
+  <div class="card">
+    <div class="card-head">🖼️ Logo da Marcenaria</div>
+    <div class="logo-area" id="logoArea">
+      <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(this)">
+      <div class="placeholder" id="logoPlaceholder"><span>🏷️</span>Clique para fazer upload da sua logo</div>
+      <img id="logoPreview" style="display:none">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">⏱️ Padrão de Prazo</div>
+    <div class="g3">
+      <div class="field"><label>Prazo Mín. (dias)</label><input type="number" id="p-prazo-min" value="20"></div>
+      <div class="field"><label>Prazo Máx. (dias)</label><input type="number" id="p-prazo-max" value="45"></div>
+      <div class="field"><label>Validade Orç. (dias)</label><input type="number" id="p-validade" value="15"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">📝 Rodapé Padrão</div>
+    <textarea id="p-rodape" rows="2" placeholder="Ex: Garantia de 1 ano em ferragens. Instalação inclusa."></textarea>
+  </div>
+  <button class="btn btn-primary" onclick="salvarPerfil()">💾 Salvar Perfil</button>
+</div>
+
+</div><!-- end wrap -->
+</div><!-- end appScreen -->
+
+<!-- ── MODAL CONFIRMAR EXCLUSÃO ── -->
+<div class="modal-overlay" id="modalDelete">
+  <div class="modal-box">
+    <h3>Excluir proposta?</h3>
+    <p>Esta ação não pode ser desfeita. A proposta será removida permanentemente.</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// SUPABASE INIT
+// ═══════════════════════════════════════════
+const SUPABASE_URL = 'https://toibffvqhvpflhakhyls.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvaWJmZnZxaHZwZmxoYWtoeWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTgyMDEsImV4cCI6MjA4NzA5NDIwMX0.G8ffvH1ImjfvGFSP0dnCiXHZCfrpjqYvsa5FidfkGGM';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let currentUser = null;
+let currentProfile = {};
+let logoData = null;
+let movelSelecionado = 'Cozinha Planejada';
+let medidas = [];
+let fotosData = [];
+let allPropostas = [];
+let editingId = null;
+let deleteTargetId = null;
+let orcNumBase = 1;
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) return showErr('loginErr', 'Preencha e-mail e senha.');
+  setBtn('loginBtn', true, 'Entrando...');
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  setBtn('loginBtn', false, 'Entrar');
+  if (error) return showErr('loginErr', traduzirErro(error.message));
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return showErr('forgotErr', 'Digite seu e-mail.');
+  setBtn('forgotBtn', true, 'Enviando...');
+  const { error } = await sb.auth.resetPasswordForEmail(email);
+  setBtn('forgotBtn', false, 'Enviar link de recuperação');
+  if (error) return showErr('forgotErr', traduzirErro(error.message));
+  showErr('forgotErr', '✅ Link enviado! Verifique seu e-mail.', true);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function showLogin() { document.getElementById('loginForm').style.display='block'; document.getElementById('forgotForm').style.display='none'; }
+function showForgot() { document.getElementById('loginForm').style.display='none'; document.getElementById('forgotForm').style.display='block'; }
+
+function traduzirErro(msg) {
+  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('already registered')) return 'E-mail já cadastrado.';
+  if (msg.includes('Password should')) return 'Senha muito curta (mínimo 6 caracteres).';
+  return msg;
+}
+
+function showErr(id, msg, isSuccess = false) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isSuccess ? '#E6F4ED' : '#FFF0F0';
+  el.style.borderColor = isSuccess ? '#A0D4B8' : '#FFB3B3';
+  el.style.color = isSuccess ? '#1A7A4A' : 'var(--red)';
+}
+
+function setBtn(id, disabled, text) {
+  const el = document.getElementById(id);
+  el.disabled = disabled;
+  el.textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// SESSION
+// ═══════════════════════════════════════════
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    const initials = (session.user.user_metadata?.nome || session.user.email || 'U')[0].toUpperCase();
+    document.getElementById('navAvatar').textContent = initials;
+    await carregarPerfil();
+    await carregarPropostas();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+  }
+});
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['propostas','orcamento','perfil'].indexOf(id) === i);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════
+// PERFIL
+// ═══════════════════════════════════════════
+async function salvarPerfil() {
+  if (!currentUser) return;
+  const data = {
+    id: currentUser.id,
+    nome: v('p-nome'), wpp: v('p-wpp'), cidade: v('p-cidade'),
+    insta: v('p-insta'), especialidade: v('p-esp'),
+    prazo_min: parseInt(v('p-prazo-min')) || 20,
+    prazo_max: parseInt(v('p-prazo-max')) || 45,
+    validade: parseInt(v('p-validade')) || 15,
+    rodape: v('p-rodape'), logo: logoData
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast('❌ Erro ao salvar: ' + error.message); return; }
+  currentProfile = data;
+  document.getElementById('profileSavedMsg').style.display = 'block';
+  toast('✅ Perfil salvo!');
+  setTimeout(() => { document.getElementById('profileSavedMsg').style.display = 'none'; }, 3000);
+}
+
+async function carregarPerfil() {
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!data) return;
+  currentProfile = data;
+  set('p-nome', data.nome); set('p-wpp', data.wpp); set('p-cidade', data.cidade);
+  set('p-insta', data.insta); set('p-esp', data.especialidade);
+  set('p-prazo-min', data.prazo_min); set('p-prazo-max', data.prazo_max);
+  set('p-validade', data.validade); set('p-rodape', data.rodape);
+  if (data.logo) {
+    logoData = data.logo;
+    document.getElementById('logoPreview').src = data.logo;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  }
+}
+
+function loadLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    logoData = e.target.result;
+    document.getElementById('logoPreview').src = logoData;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — LISTAR
+// ═══════════════════════════════════════════
+async function carregarPropostas() {
+  if (!currentUser) return;
+  const { data, error } = await sb.from('propostas')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (error) { document.getElementById('propostasList').innerHTML = '<div class="loading-state">❌ Erro ao carregar propostas.</div>'; return; }
+  allPropostas = data || [];
+  orcNumBase = allPropostas.length + 1;
+  renderPropostas(allPropostas);
+}
+
+function renderPropostas(lista) {
+  const el = document.getElementById('propostasList');
+  const total = document.getElementById('totalPropostas');
+  total.textContent = `${lista.length} proposta${lista.length !== 1 ? 's' : ''} encontrada${lista.length !== 1 ? 's' : ''}`;
+  if (lista.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="ei">📋</div><p>Nenhuma proposta ainda.<br>Clique em <strong>Nova Proposta</strong> para começar.</p></div>`;
+    return;
+  }
+  el.innerHTML = lista.map(p => {
+    const num = String(p.numero || 1).padStart(3, '0');
+    const data = new Date(p.created_at).toLocaleDateString('pt-BR');
+    const status = p.status || 'ativa';
+    return `
+    <div class="proposta-card" id="pc-${p.id}">
+      <div class="pc-left">
+        <div class="pc-num">#${num} · ${data}</div>
+        <div class="pc-cliente">${p.cliente_nome || 'Cliente não informado'}</div>
+        <div class="pc-tipo">${p.tipo_movel || '—'}</div>
+        <div style="margin-top:6px;">
+          <span class="status-badge status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        </div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="visualizarProposta('${p.id}');event.stopPropagation()">👁 Ver</button>
+          <button class="pc-btn" onclick="editarProposta('${p.id}');event.stopPropagation()">✏️ Editar</button>
+          <button class="pc-btn" onclick="reenviarWhatsApp('${p.id}');event.stopPropagation()">📱 WhatsApp</button>
+          <button class="pc-btn danger" onclick="deletarProposta('${p.id}');event.stopPropagation()">🗑 Excluir</button>
+        </div>
+      </div>
+      <div class="pc-right">
+        <div class="pc-total">${fmt(p.v_total || 0)}</div>
+        <div class="pc-data">${p.tipo_movel || ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarPropostas() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const filtradas = allPropostas.filter(p => {
+    const matchQ = !q || (p.cliente_nome || '').toLowerCase().includes(q) || (p.tipo_movel || '').toLowerCase().includes(q);
+    const matchS = !status || p.status === status;
+    return matchQ && matchS;
+  });
+  renderPropostas(filtradas);
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — SALVAR
+// ═══════════════════════════════════════════
+async function salvarProposta() {
+  if (!currentUser) return;
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true; btn.textContent = '💾 Salvando...';
+
+  const mat = parseFloat(v('v-mat')) || 0;
+  const mao = parseFloat(v('v-mao')) || 0;
+  const ferrV = parseFloat(v('v-ferr')) || 0;
+  const out = parseFloat(v('v-outros')) || 0;
+  const marg = parseFloat(v('v-margem')) || 0;
+  const sub = mat + mao + ferrV + out;
+  const total = sub + sub * (marg / 100);
+
+  const medsData = medidas.map(id => ({
+    nome: document.getElementById('mn-' + id)?.value || '',
+    l: document.getElementById('ml-' + id)?.value || '',
+    a: document.getElementById('ma-' + id)?.value || '',
+    p: document.getElementById('mp-' + id)?.value || ''
+  })).filter(m => m.nome || m.l);
+
+  const pgtos = [...document.querySelectorAll('.pgto-card.on')].map(c => c.querySelector('.pl').textContent);
+
+  const payload = {
+    user_id: currentUser.id,
+    numero: editingId ? undefined : orcNumBase,
+    cliente_nome: v('c-nome'), cliente_wpp: v('c-wpp'),
+    cliente_end: v('c-end'), cliente_ref: v('c-ref'),
+    tipo_movel: movelSelecionado,
+    chapa: document.querySelector('#chapas .chip.on')?.textContent || '',
+    acabamento: document.querySelector('#acabs .chip.on')?.textContent || '',
+    ferragens: document.querySelector('#ferragens .chip.on')?.textContent || '',
+    detalhes: v('m-detalhes'),
+    medidas: medsData,
+    fotos: fotosData,
+    inicio: v('m-inicio') || null,
+    entrega: v('m-entrega') || null,
+    prazo_obs: v('m-prazo-obs'),
+    v_mat: mat, v_mao: mao, v_ferr: ferrV, v_outros: out,
+    v_margem: marg, v_total: total,
+    garantia: v('v-garantia'), incluso: v('v-incluso'), excluso: v('v-excluso'),
+    pgto_formas: pgtos, pgto_condicao: v('pg-condicao'), pgto_pix: v('pg-pix'),
+    obs_final: v('obs-final'),
+    status: 'ativa',
+    updated_at: new Date().toISOString()
+  };
+
+  let error;
+  if (editingId) {
+    ({ error } = await sb.from('propostas').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await sb.from('propostas').insert(payload));
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Salvar Proposta';
+  if (error) { toast('❌ Erro: ' + error.message); return; }
+
+  toast(editingId ? '✅ Proposta atualizada!' : '✅ Proposta salva!');
+  editingId = null;
+  await carregarPropostas();
+  montarPreview();
+  showPage('preview');
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — VISUALIZAR / EDITAR / DELETAR
+// ═══════════════════════════════════════════
+function visualizarProposta(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  carregarFormDeProposta(p);
+  montarPreviewDeProposta(p);
+  showPage('preview');
+}
+
+function editarProposta(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  carregarFormDeProposta(p);
+  document.getElementById('orcTitle').textContent = 'Editar Proposta';
+  document.getElementById('btnSalvar').textContent = '💾 Salvar Alterações';
+  goStep(1);
+  showPage('orcamento');
+}
+
+function carregarFormDeProposta(p) {
+  set('c-nome', p.cliente_nome); set('c-wpp', p.cliente_wpp);
+  set('c-end', p.cliente_end); set('c-ref', p.cliente_ref);
+  movelSelecionado = p.tipo_movel || 'Cozinha Planejada';
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => {
+    c.classList.toggle('on', c.querySelector('.ml').textContent === p.tipo_movel?.replace('Cozinha Planejada','Cozinha').replace('Guarda-Roupa','Guarda-Roupa') || false);
+  });
+  // reset movel grid
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => c.classList.remove('on'));
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => {
+    const labels = {'Cozinha Planejada':'Cozinha','Guarda-Roupa':'Guarda-Roupa','Home Office':'Home Office','Closet':'Closet','Banheiro':'Banheiro','Rack / Painel TV':'Rack/Painel','Quarto Infantil':'Infantil','Área de Serviço':'Área Serviço','Móvel Sob Medida':'Sob Medida'};
+    if (c.querySelector('.ml').textContent === (labels[p.tipo_movel] || p.tipo_movel)) c.classList.add('on');
+  });
+  setChip('chapas', p.chapa); setChip('acabs', p.acabamento); setChip('ferragens', p.ferragens);
+  set('m-detalhes', p.detalhes);
+  // fotos
+  fotosData = p.fotos || [];
+  renderFotoGrid();
+  // medidas
+  medidas = [];
+  document.getElementById('medidasList').innerHTML = '';
+  (p.medidas || []).forEach(m => addMedida(m.nome, m.l, m.a, m.p));
+  set('m-inicio', p.inicio || ''); set('m-entrega', p.entrega || '');
+  set('m-prazo-obs', p.prazo_obs);
+  set('v-mat', p.v_mat || ''); set('v-mao', p.v_mao || '');
+  set('v-ferr', p.v_ferr || ''); set('v-outros', p.v_outros || '');
+  set('v-margem', p.v_margem ?? 30);
+  set('v-garantia', p.garantia); set('v-incluso', p.incluso); set('v-excluso', p.excluso);
+  // pgto
+  document.querySelectorAll('.pgto-card').forEach(c => {
+    c.classList.toggle('on', (p.pgto_formas || []).includes(c.querySelector('.pl').textContent));
+  });
+  set('pg-condicao', p.pgto_condicao); set('pg-pix', p.pgto_pix);
+  set('obs-final', p.obs_final);
+  calcTotal();
+}
+
+function setChip(group, value) {
+  document.querySelectorAll(`#${group} .chip`).forEach(c => {
+    c.classList.toggle('on', c.textContent === value);
+  });
+}
+
+function deletarProposta(id) {
+  deleteTargetId = id;
+  document.getElementById('modalDelete').classList.add('show');
+}
+
+async function confirmarDelete() {
+  if (!deleteTargetId) return;
+  const { error } = await sb.from('propostas').delete().eq('id', deleteTargetId);
+  closeModal();
+  if (error) { toast('❌ Erro ao excluir.'); return; }
+  toast('🗑 Proposta excluída.');
+  deleteTargetId = null;
+  await carregarPropostas();
+}
+
+function closeModal() {
+  document.getElementById('modalDelete').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════
+// PREVIEW
+// ═══════════════════════════════════════════
+function montarPreview() {
+  const mat = parseFloat(v('v-mat')) || 0;
+  const mao = parseFloat(v('v-mao')) || 0;
+  const ferrV = parseFloat(v('v-ferr')) || 0;
+  const out = parseFloat(v('v-outros')) || 0;
+  const marg = parseFloat(v('v-margem')) || 0;
+  const sub = mat + mao + ferrV + out;
+  const total = sub + sub * (marg / 100);
+
+  const p = {
+    cliente_nome: v('c-nome'), cliente_wpp: v('c-wpp'),
+    cliente_end: v('c-end'), cliente_ref: v('c-ref'),
+    tipo_movel: movelSelecionado,
+    chapa: document.querySelector('#chapas .chip.on')?.textContent || '',
+    acabamento: document.querySelector('#acabs .chip.on')?.textContent || '',
+    ferragens: document.querySelector('#ferragens .chip.on')?.textContent || '',
+    detalhes: v('m-detalhes'),
+    medidas: medidas.map(id => ({ nome: document.getElementById('mn-'+id)?.value||'', l: document.getElementById('ml-'+id)?.value||'', a: document.getElementById('ma-'+id)?.value||'', p: document.getElementById('mp-'+id)?.value||'' })),
+    inicio: v('m-inicio'), entrega: v('m-entrega'), prazo_obs: v('m-prazo-obs'),
+    v_total: total,
+    pgto_formas: [...document.querySelectorAll('.pgto-card.on')].map(c => c.querySelector('.pl').textContent),
+    pgto_condicao: v('pg-condicao'), pgto_pix: v('pg-pix'),
+    garantia: v('v-garantia'), incluso: v('v-incluso'), excluso: v('v-excluso'),
+    obs_final: v('obs-final'),
+    numero: editingId ? (allPropostas.find(x=>x.id===editingId)?.numero || 1) : orcNumBase,
+    created_at: new Date().toISOString()
+  };
+  montarPreviewDeProposta(p);
+}
+
+function montarPreviewDeProposta(p) {
+  const hoje = new Date(p.created_at || Date.now()).toLocaleDateString('pt-BR');
+  const num = '#' + String(p.numero || 1).padStart(3,'0');
+
+  set2('pv-titulo', `Proposta – ${p.tipo_movel || ''}`);
+  set2('pv-num', `${num} · ${hoje}`);
+  set2('pv-footer-date', `Emitido em ${hoje}`);
+  set2('pv-validade-txt', `Válido por ${currentProfile.validade || 15} dias`);
+
+  const pvLogoBox = document.getElementById('pvLogoBox');
+  const logo = logoData || currentProfile.logo;
+  pvLogoBox.innerHTML = logo
+    ? `<img src="${logo}" style="max-height:36px;max-width:100px;object-fit:contain;">`
+    : `<div class="logo-text">${currentProfile.nome || 'Marcenaria'}</div>`;
+
+  set2('pv-marc-nome', currentProfile.nome || '—');
+  set2('pv-marc-wpp', currentProfile.wpp || '—');
+  set2('pv-marc-cidade', currentProfile.cidade || '—');
+  set2('pv-marc-insta', currentProfile.insta || '');
+  toggle('pv-marc-insta-row', !!currentProfile.insta);
+
+  set2('pv-c-nome', p.cliente_nome || '—');
+  set2('pv-c-wpp', p.cliente_wpp || '—');
+  set2('pv-c-end', p.cliente_end || '—');
+  set2('pv-c-ref', p.cliente_ref || '');
+  toggle('pv-c-ref-row', !!p.cliente_ref);
+
+  set2('pv-tipo', p.tipo_movel || '—');
+  set2('pv-mat', p.chapa || '—');
+  set2('pv-acab', p.acabamento || '—');
+  set2('pv-ferr', p.ferragens || '—');
+  set2('pv-det', p.detalhes || '');
+  toggle('pv-det-row', !!p.detalhes);
+
+  const tbody = document.getElementById('pv-med-body');
+  tbody.innerHTML = '';
+  let hasM = false;
+  (p.medidas || []).forEach(m => {
+    if (m.nome || m.l) {
+      hasM = true;
+      tbody.innerHTML += `<tr><td>${m.nome||'—'}</td><td>${m.l?m.l+'m':'—'}</td><td>${m.a?m.a+'m':'—'}</td><td>${m.p?m.p+'m':'—'}</td></tr>`;
+    }
+  });
+  toggle('pv-med-section', hasM);
+
+  const ini = p.inicio ? new Date(p.inicio+'T12:00').toLocaleDateString('pt-BR') : '—';
+  const ent = p.entrega ? new Date(p.entrega+'T12:00').toLocaleDateString('pt-BR') : '—';
+  set2('pv-inicio', ini); set2('pv-entrega', ent);
+  set2('pv-prazo-obs', p.prazo_obs || '');
+  toggle('pv-prazo-obs-row', !!p.prazo_obs);
+
+  set2('pv-total', fmt(p.v_total || 0));
+
+  const pills = document.getElementById('pv-pgto-pills');
+  pills.innerHTML = (p.pgto_formas || []).map(f => `<div class="pgto-pill">${f}</div>`).join('');
+  set2('pv-condicao', p.pgto_condicao || '—');
+  set2('pv-pix', p.pgto_pix || '');
+  toggle('pv-pix-row', !!p.pgto_pix);
+
+  set2('pv-garantia', p.garantia || '—');
+  set2('pv-incluso', p.incluso || '—');
+  set2('pv-excluso', p.excluso || '—');
+
+  // Fotos
+  const pvFotos = document.getElementById('pv-fotos-section');
+  const fotos = p.fotos || fotosData;
+  if (fotos && fotos.length > 0) {
+    pvFotos.style.display = 'block';
+    pvFotos.innerHTML = `<h3>Fotos de Referência</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">${fotos.map(src=>`<img src="${src}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);">`).join('')}</div>`;
+  } else {
+    pvFotos.style.display = 'none';
+  }
+
+  const obsEl = document.getElementById('pv-obs-section');
+  if (p.obs_final) { document.getElementById('pv-obs').textContent = p.obs_final; obsEl.style.display = 'block'; }
+  else obsEl.style.display = 'none';
+
+  const rodapeEl = document.getElementById('pv-rodape-section');
+  if (currentProfile.rodape) { document.getElementById('pv-rodape').textContent = currentProfile.rodape; rodapeEl.style.display = 'block'; }
+  else rodapeEl.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+// WHATSAPP
+// ═══════════════════════════════════════════
+function enviarWhatsApp() {
+  const wpp = v('c-wpp').replace(/\D/g,'');
+  enviarMsgWhatsApp(wpp, v('c-nome'), movelSelecionado, v('c-end'), v('m-entrega'), (() => {
+    const mat = parseFloat(v('v-mat'))||0, mao=parseFloat(v('v-mao'))||0, ferr=parseFloat(v('v-ferr'))||0, out=parseFloat(v('v-outros'))||0, marg=parseFloat(v('v-margem'))||0;
+    const sub = mat+mao+ferr+out; return sub + sub*(marg/100);
+  })(), [...document.querySelectorAll('.pgto-card.on')].map(c=>c.querySelector('.pl').textContent).join(', '), v('pg-condicao'), v('pg-pix'), v('v-garantia'), v('obs-final'));
+}
+
+function reenviarWhatsApp(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  const wpp = (p.cliente_wpp || '').replace(/\D/g,'');
+  const pgtos = (p.pgto_formas || []).join(', ');
+  enviarMsgWhatsApp(wpp, p.cliente_nome, p.tipo_movel, p.cliente_end, p.entrega, p.v_total, pgtos, p.pgto_condicao, p.pgto_pix, p.garantia, p.obs_final);
+  // Atualizar status para enviada
+  sb.from('propostas').update({ status: 'enviada', updated_at: new Date().toISOString() }).eq('id', id).then(() => carregarPropostas());
+}
+
+function enviarMsgWhatsApp(wpp, cliente, tipo, end, entrega, total, pgtos, condicao, pix, garantia, obs) {
+  const entregaFmt = entrega ? new Date(entrega+'T12:00').toLocaleDateString('pt-BR') : 'a combinar';
+  const msg =
+`Olá ${cliente || 'Cliente'}! 👋
+
+Segue a proposta para o seu ${tipo}:
+
+📍 Local: ${end || 'a confirmar'}
+📅 Entrega prevista: ${entregaFmt}
+
+💰 *Valor Total: ${fmt(total)}*
+⏳ Válido por ${currentProfile.validade || 15} dias
+
+💳 Pagamento: ${pgtos}${condicao ? '\n📋 Condição: ' + condicao : ''}${pix ? '\n📱 PIX: ' + pix : ''}${garantia ? '\n✅ Garantia: ' + garantia : ''}${obs ? '\n📝 ' + obs : ''}
+
+Qualquer dúvida estou à disposição! 🪚
+${currentProfile.nome || ''}${currentProfile.wpp ? ' • ' + currentProfile.wpp : ''}`;
+
+  const url = wpp ? `https://wa.me/55${wpp}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ═══════════════════════════════════════════
+// FORM HELPERS
+// ═══════════════════════════════════════════
+function goStep(n) {
+  document.querySelectorAll('.step-page').forEach((s,i) => s.style.display = i+1===n ? 'block' : 'none');
+  document.querySelectorAll('.step-dot').forEach((d,i) => { d.classList.remove('active','done'); if(i+1===n) d.classList.add('active'); if(i+1<n) d.classList.add('done'); });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectMovel(el, tipo) {
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  movelSelecionado = tipo;
+}
+
+function toggleChip(el, group) {
+  document.querySelectorAll(`#${group} .chip`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function togglePgto(el) { el.classList.toggle('on'); }
+
+function calcTotal() {
+  const mat = parseFloat(document.getElementById('v-mat')?.value)||0;
+  const mao = parseFloat(document.getElementById('v-mao')?.value)||0;
+  const ferr = parseFloat(document.getElementById('v-ferr')?.value)||0;
+  const out = parseFloat(document.getElementById('v-outros')?.value)||0;
+  const marg = parseFloat(document.getElementById('v-margem')?.value)||0;
+  const sub = mat+mao+ferr+out;
+  const vm = sub*(marg/100);
+  const total = sub+vm;
+  const mval = document.getElementById('v-margem-val');
+  const spre = document.getElementById('v-subtotal-preview');
+  const tpre = document.getElementById('v-total-preview');
+  if(mval) mval.textContent = fmt(vm);
+  if(spre) spre.textContent = fmt(sub);
+  if(tpre) tpre.textContent = fmt(total);
+}
+
+function addMedida(nome='', l='', a='', p='') {
+  const id = Date.now() + Math.random();
+  medidas.push(id);
+  const div = document.createElement('div');
+  div.className = 'medida-item';
+  div.id = 'med-'+id;
+  div.innerHTML = `
+    <input type="text" placeholder="Ex: Cozinha" value="${nome}" style="flex:1.5;min-width:80px;" id="mn-${id}">
+    <input type="number" placeholder="L" value="${l}" style="width:58px;" id="ml-${id}" min="0" step="0.01">
+    <span class="mi-unit">L(m)</span>
+    <input type="number" placeholder="A" value="${a}" style="width:58px;" id="ma-${id}" min="0" step="0.01">
+    <span class="mi-unit">A(m)</span>
+    <input type="number" placeholder="P" value="${p}" style="width:58px;" id="mp-${id}" min="0" step="0.01">
+    <span class="mi-unit">P(m)</span>
+    <button onclick="removeMedida(${id})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;">×</button>`;
+  document.getElementById('medidasList').appendChild(div);
+}
+
+function removeMedida(id) {
+  document.getElementById('med-'+id)?.remove();
+  medidas = medidas.filter(m => m !== id);
+}
+
+function loadFotos(input) {
+  [...input.files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => { fotosData.push(e.target.result); renderFotoGrid(); };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFotoGrid() {
+  const grid = document.getElementById('fotoGrid');
+  const ph = document.getElementById('fotoPlaceholder');
+  if (fotosData.length > 0) {
+    ph.style.display = 'none'; grid.style.display = 'flex';
+    grid.innerHTML = fotosData.map((src,i) => `<img src="${src}" class="foto-thumb" title="Clique para remover" onclick="removeFoto(${i})">`).join('') +
+      `<div class="foto-add-more" onclick="document.getElementById('fotosInput').click()">+</div>`;
+  } else {
+    ph.style.display = 'block'; grid.style.display = 'none';
+  }
+}
+
+function removeFoto(idx) { fotosData.splice(idx,1); renderFotoGrid(); }
+
+function novaPropostа() {
+  editingId = null;
+  document.getElementById('orcTitle').textContent = 'Nova Proposta';
+  document.getElementById('btnSalvar').textContent = '💾 Salvar Proposta';
+  ['c-nome','c-wpp','c-end','c-ref','m-detalhes','m-inicio','m-entrega','m-prazo-obs',
+   'v-mat','v-mao','v-ferr','v-outros','v-garantia','v-incluso','v-excluso',
+   'pg-condicao','pg-pix','obs-final'].forEach(id => set(id,''));
+  set('v-margem','30');
+  movelSelecionado = 'Cozinha Planejada';
+  document.querySelectorAll('#movelGrid .movel-card').forEach((c,i) => c.classList.toggle('on', i===0));
+  ['chapas','acabs','ferragens'].forEach(g => { document.querySelectorAll(`#${g} .chip`).forEach((c,i) => c.classList.toggle('on',i===0)); });
+  document.querySelectorAll('.pgto-card').forEach((c,i) => c.classList.toggle('on', i<2));
+  medidas = []; fotosData = [];
+  document.getElementById('medidasList').innerHTML = '';
+  renderFotoGrid();
+  calcTotal();
+  goStep(1);
+  showPage('orcamento');
+}
+
+// ═══════════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════════
+async function gerarPDF() {
+  toast('⏳ Gerando PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W=210, M=18;
+  const RED=[212,43,43], DARK=[26,26,26], GREY=[90,90,90], LGREY=[240,240,240], WHITE=[255,255,255];
+  let y=0;
+
+  // Dados da proposta atual no preview
+  const pvTotal = document.getElementById('pv-total')?.textContent || 'R$ 0,00';
+  const pvNum = document.getElementById('pv-num')?.textContent || '';
+  const pvTitulo = document.getElementById('pv-titulo')?.textContent || 'Proposta';
+
+  doc.setFillColor(...RED);
+  doc.rect(0,0,W,42,'F');
+  const logo = logoData || currentProfile.logo;
+  if (logo) { try { doc.addImage(logo,'JPEG',W-M-36,8,36,22,'','FAST'); } catch(e){} }
+  else { doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...WHITE); doc.text(currentProfile.nome||'',W-M,20,{align:'right'}); }
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(...WHITE);
+  doc.text(pvTitulo, M, 18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(255,200,200);
+  doc.text(pvNum, M, 26);
+  doc.text(`Válido por ${currentProfile.validade||15} dias`, M, 33);
+  y=52;
+
+  function sT(txt) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+    doc.text(txt.toUpperCase(),M,y);
+    doc.setDrawColor(...LGREY); doc.line(M+doc.getTextWidth(txt.toUpperCase())+3,y-0.5,W-M,y-0.5);
+    y+=5;
+  }
+  function row(label,value) {
+    if(!value||value==='—') return;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...GREY); doc.text(label,M,y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(...DARK);
+    const lines = doc.splitTextToSize(String(value),W-M-M-45);
+    doc.text(lines,W-M,y,{align:'right'});
+    y+=Math.max(lines.length*5,6);
+  }
+  function noteBox(label,text,bg=[255,248,230],tc=[122,90,0]) {
+    if(!text) return;
+    doc.setFillColor(...bg);
+    const lines=doc.splitTextToSize(String(text),W-M*2-10);
+    const h=lines.length*5+10; doc.roundedRect(M,y,W-M*2,h,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...tc);
+    if(label) doc.text(label,M+5,y+7);
+    doc.setFont('helvetica','normal'); doc.text(lines,M+5,y+(label?13:7));
+    y+=h+4;
+  }
+  function chkPg(n=20) { if(y+n>270){ doc.addPage(); y=20; } }
+
+  sT('Marceneiro');
+  row('Nome', currentProfile.nome); row('WhatsApp', currentProfile.wpp); row('Cidade', currentProfile.cidade);
+  if(currentProfile.insta) row('Instagram', currentProfile.insta);
+  y+=4;
+
+  chkPg(); sT('Cliente');
+  row('Nome', document.getElementById('pv-c-nome')?.textContent);
+  row('WhatsApp', document.getElementById('pv-c-wpp')?.textContent);
+  row('Endereço', document.getElementById('pv-c-end')?.textContent);
+  const ref = document.getElementById('pv-c-ref')?.textContent;
+  if(ref) row('Referência', ref);
+  y+=4;
+
+  chkPg(); sT('Serviço');
+  row('Tipo', document.getElementById('pv-tipo')?.textContent);
+  row('Material', document.getElementById('pv-mat')?.textContent);
+  row('Acabamento', document.getElementById('pv-acab')?.textContent);
+  row('Ferragens', document.getElementById('pv-ferr')?.textContent);
+  const det = document.getElementById('pv-det')?.textContent;
+  if(det) row('Detalhes', det);
+  y+=4;
+
+  // Medidas
+  const rows = document.querySelectorAll('#pv-med-body tr');
+  if(rows.length>0) {
+    chkPg(30); sT('Medidas');
+    const cols=[60,35,35,35], headers=['Peça / Ambiente','Larg.(m)','Alt.(m)','Prof.(m)'];
+    doc.setFillColor(...LGREY); doc.roundedRect(M,y,W-M*2,8,1,1,'F');
+    let cx=M+3;
+    headers.forEach((h,i)=>{ doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GREY); doc.text(h,cx,y+5.5); cx+=cols[i]; });
+    y+=9;
+    rows.forEach(row2=>{ chkPg(8); cx=M+3; row2.querySelectorAll('td').forEach((td,i)=>{ doc.setFont('helvetica',i===0?'bold':'normal'); doc.setFontSize(9); doc.setTextColor(...DARK); doc.text(td.textContent,cx,y+5); cx+=cols[i]; }); doc.setDrawColor(...LGREY); doc.line(M,y+7,M+W-M*2,y+7); y+=8; });
+    y+=4;
+  }
+
+  chkPg(); sT('Prazo');
+  row('Início', document.getElementById('pv-inicio')?.textContent);
+  row('Entrega', document.getElementById('pv-entrega')?.textContent);
+  const pobs = document.getElementById('pv-prazo-obs')?.textContent;
+  if(pobs) row('Obs.', pobs);
+  y+=4;
+
+  chkPg(20);
+  doc.setFillColor(...DARK); doc.roundedRect(M,y,W-M*2,16,3,3,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(180,180,180); doc.text('VALOR TOTAL DO SERVIÇO',M+6,y+10);
+  doc.setFontSize(16); doc.setTextColor(...RED); doc.text(pvTotal,W-M-6,y+11,{align:'right'});
+  y+=22;
+
+  chkPg(); sT('Formas de Pagamento');
+  const pgtos2 = [...document.querySelectorAll('#pv-pgto-pills .pgto-pill')].map(p=>p.textContent).join(', ');
+  row('Aceita', pgtos2);
+  const cond = document.getElementById('pv-condicao')?.textContent;
+  if(cond&&cond!=='—') row('Condição',cond);
+  const pix2 = document.getElementById('pv-pix')?.textContent;
+  if(pix2) row('PIX',pix2);
+  y+=4;
+
+  chkPg(); sT('Condições e Garantia');
+  const gar=document.getElementById('pv-garantia')?.textContent;
+  const inc=document.getElementById('pv-incluso')?.textContent;
+  const exc=document.getElementById('pv-excluso')?.textContent;
+  if(gar&&gar!=='—') row('Garantia',gar);
+  if(inc&&inc!=='—') row('Incluso',inc);
+  if(exc&&exc!=='—') row('Não incluso',exc);
+  y+=4;
+
+  chkPg(20);
+  const obsF=document.getElementById('pv-obs')?.textContent;
+  if(obsF) noteBox('Observações:',obsF);
+  if(currentProfile.rodape) noteBox('',currentProfile.rodape,[245,245,245],[100,100,100]);
+
+  // Fotos no PDF
+  const allFotos = fotosData.length > 0 ? fotosData : [];
+  if(allFotos.length>0) {
+    chkPg(40); sT('Fotos de Referência');
+    const fW=40,fH=35,gap=5; let fx=M;
+    for(let i=0;i<allFotos.length;i++) {
+      if(fx+fW>W-M){ fx=M; y+=fH+gap; chkPg(fH+gap); }
+      try { doc.addImage(allFotos[i],'JPEG',fx,y,fW,fH,'','FAST'); } catch(e){}
+      fx+=fW+gap;
+    }
+    y+=fH+8;
+  }
+
+  // Footer
+  const pages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++) {
+    doc.setPage(i); doc.setFillColor(...LGREY); doc.rect(0,285,W,12,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+    doc.text('Proposta gerada por Fifty+',M,292);
+    doc.text(`Página ${i} de ${pages}`,W-M,292,{align:'right'});
+  }
+  doc.save(`Proposta_${(document.getElementById('pv-c-nome')?.textContent||'cliente').replace(/\s/g,'_')}_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.pdf`);
+  toast('✅ PDF baixado!');
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function v(id) { return document.getElementById(id)?.value || ''; }
+function set(id, val) { const el = document.getElementById(id); if(el) el.value = val ?? ''; }
+function set2(id, val) { const el = document.getElementById(id); if(el) el.textContent = val || ''; }
+function toggle(id, show) { const el = document.getElementById(id); if(el) el.style.display = show ? '' : 'none'; }
+function fmt(val) { return 'R$ ' + (val||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
