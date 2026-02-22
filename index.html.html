@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fifty+ | Proposta Profissional</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #D42B2B; --red-dark: #AA2020; --red-light: #FFF0F0;
+  --bg: #F0F0F0; --surface: #FFFFFF; --surface2: #F7F7F7;
+  --border: #E2E2E2; --text: #1A1A1A; --text2: #5A5A5A; --text3: #9A9A9A;
+  --green: #1A7A4A; --green-bg: #E6F4ED; --radius: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D0A0A 100%); padding: 20px;
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+.login-box {
+  background: white; border-radius: 20px; padding: 40px 32px;
+  width: 100%; max-width: 400px; box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+.login-logo { font-size: 32px; font-weight: 700; color: var(--red); text-align: center; margin-bottom: 6px; letter-spacing: -1px; }
+.login-logo span { font-weight: 300; }
+.login-sub { text-align: center; font-size: 13px; color: var(--text3); margin-bottom: 32px; }
+.login-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; margin-top: 14px; }
+.login-input {
+  width: 100%; padding: 14px 15px; border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; transition: all 0.2s;
+  background: var(--surface2);
+}
+.login-input:focus { border-color: var(--red); background: white; }
+.login-btn {
+  width: 100%; padding: 16px; background: var(--red); color: white; border: none;
+  border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; margin-top: 22px; transition: all 0.18s; letter-spacing: 0.2px; min-height: 52px;
+}
+.login-btn:active { background: var(--red-dark); transform: scale(0.98); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.login-err { background: #FFF0F0; border: 1px solid #FFB3B3; color: var(--red); font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-top: 14px; display: none; }
+.login-forgot { text-align: center; margin-top: 16px; font-size: 14px; color: var(--text3); cursor: pointer; padding: 8px; }
+.login-switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text2); }
+.login-switch a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: none; }
+
+/* ── NAV ── */
+#appScreen { display: none; }
+nav {
+  background: white; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; height: 58px; position: sticky; top: 0; z-index: 200;
+}
+.nav-logo { font-size: 21px; font-weight: 700; color: var(--red); letter-spacing: -0.5px; flex-shrink: 0; }
+.nav-logo span { font-weight: 300; }
+.nav-tabs { display: flex; gap: 2px; }
+.nav-tab {
+  padding: 10px 11px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; color: var(--text3); transition: all 0.18s; border: none;
+  background: none; font-family: 'DM Sans', sans-serif; min-height: 42px;
+  display: flex; align-items: center; gap: 4px;
+}
+.nav-tab:active { background: var(--bg); }
+.nav-tab.active { color: var(--red); background: var(--red-light); }
+.nav-user { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.nav-avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--red);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.btn-logout {
+  font-size: 12px; color: var(--text3); cursor: pointer; padding: 8px;
+  border-radius: 6px; transition: all 0.18s; border: none; background: none;
+  font-family: 'DM Sans', sans-serif; min-height: 42px;
+}
+.btn-logout:active { color: var(--red); background: var(--red-light); }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 700px; margin: 0 auto; padding: 24px 14px calc(80px + var(--safe-bottom)); }
+.page { display: none; animation: up 0.28s ease; }
+.page.active { display: block; }
+@keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.sec-head { margin-bottom: 20px; }
+.sec-head h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px; }
+.sec-head p { font-size: 14px; color: var(--text2); }
+
+/* ── CARDS ── */
+.card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
+.card:focus-within { border-color: var(--red); }
+.card-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--red); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+
+/* ── FORM ── */
+.field { margin-bottom: 13px; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+input, select, textarea {
+  width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text);
+  background: var(--surface2); transition: all 0.18s; outline: none; appearance: none;
+  -webkit-appearance: none; min-height: 48px;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--red); background: white; }
+input::placeholder, textarea::placeholder { color: var(--text3); }
+textarea { min-height: auto; resize: none; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+/* ── LOGO UPLOAD ── */
+.logo-area { border: 2px dashed var(--border); border-radius: 10px; padding: 22px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); position: relative; min-height: 80px; }
+.logo-area:active { border-color: var(--red); background: #FFF5F5; }
+.logo-area img { max-height: 70px; max-width: 180px; object-fit: contain; border-radius: 4px; }
+.logo-area .placeholder { font-size: 13px; color: var(--text3); }
+.logo-area .placeholder span { display: block; font-size: 28px; margin-bottom: 4px; }
+#logoInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ── CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { border: 1.5px solid var(--border); border-radius: 7px; padding: 9px 14px; font-size: 13px; font-weight: 500; cursor: pointer; background: var(--surface2); color: var(--text2); transition: all 0.18s; user-select: none; min-height: 40px; display: flex; align-items: center; }
+.chip:active { border-color: var(--red); }
+.chip.on { border-color: var(--red); background: var(--red-light); color: var(--red); font-weight: 600; }
+
+/* ── MOVEL GRID ── */
+.movel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.movel-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 8px; cursor: pointer; text-align: center; background: var(--surface2); transition: all 0.18s; user-select: none; min-height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.movel-card:active { border-color: var(--red); background: #FFF8F8; }
+.movel-card.on { border-color: var(--red); background: var(--red-light); }
+.movel-card .mi { font-size: 26px; margin-bottom: 5px; }
+.movel-card .ml { font-size: 11px; font-weight: 600; color: var(--text2); }
+.movel-card.on .ml { color: var(--red); }
+
+/* ── MEDIDAS ── */
+.medida-item { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 9px; padding: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.medida-item input { flex: none; padding: 10px 8px; font-size: 14px; min-height: 44px; }
+.medida-item .mi-label { font-size: 10px; color: var(--text3); white-space: nowrap; font-weight: 600; text-transform: uppercase; }
+.btn-add-medida { display: flex; align-items: center; gap: 6px; justify-content: center; width: 100%; padding: 13px; border: 1.5px dashed var(--border); border-radius: 9px; background: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text3); cursor: pointer; transition: all 0.18s; margin-top: 4px; min-height: 50px; }
+.btn-add-medida:active { border-color: var(--red); color: var(--red); }
+
+/* ── PGTO ── */
+.pgto-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.pgto-card { border: 1.5px solid var(--border); border-radius: 9px; padding: 14px 10px; cursor: pointer; background: var(--surface2); transition: all 0.18s; user-select: none; text-align: center; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.pgto-card:active { border-color: var(--red); }
+.pgto-card.on { border-color: var(--red); background: var(--red-light); }
+.pgto-card .pi { font-size: 20px; margin-bottom: 4px; }
+.pgto-card .pl { font-size: 12px; font-weight: 600; color: var(--text2); }
+.pgto-card.on .pl { color: var(--red); }
+
+/* ── STEPS ── */
+.steps-bar { display: flex; gap: 2px; align-items: center; margin-bottom: 20px; padding: 14px 14px 12px; background: white; border-radius: var(--radius); border: 1.5px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.step-dot { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--text3); transition: all 0.2s; white-space: nowrap; cursor: pointer; }
+.step-dot.active { color: var(--red); }
+.step-dot.done { color: var(--green); }
+.step-dot .sd { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: all 0.2s; flex-shrink: 0; }
+.step-dot.active .sd { background: var(--red); color: white; }
+.step-dot.done .sd { background: var(--green); color: white; }
+.step-line { flex: 1; min-width: 12px; height: 1.5px; background: var(--border); flex-shrink: 0; }
+
+/* ── BTNS ── */
+.btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 15px; border-radius: 11px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all 0.18s; min-height: 52px; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary { background: var(--red); color: white; }
+.btn-primary:active:not(:disabled) { background: var(--red-dark); transform: scale(0.98); }
+.btn-outline { background: transparent; color: var(--text2); border: 1.5px solid var(--border); }
+.btn-outline:active { border-color: var(--red); color: var(--red); }
+.btn-green { background: #1A7A4A; color: white; }
+.btn-green:active { background: #155f3a; }
+.btn-whatsapp { background: #25D366; color: white; }
+.btn-whatsapp:active { background: #1EB855; }
+.btn-row { display: flex; gap: 10px; margin-top: 6px; }
+.btn-row .btn { flex: 1; }
+
+/* ── FOTO UPLOAD ── */
+.foto-upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: var(--surface2); transition: all 0.2s; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+.foto-upload-area:active { border-color: var(--red); background: #FFF8F8; }
+.foto-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; width: 100%; }
+.foto-thumb { width: 76px; height: 76px; border-radius: 8px; object-fit: cover; border: 2px solid var(--border); cursor: pointer; }
+.foto-add-more { width: 76px; height: 76px; border-radius: 8px; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; background: var(--surface2); color: var(--text3); }
+
+/* ── PREVIEW ── */
+.preview-box { background: white; border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.preview-header { background: var(--red); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.preview-header h2 { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+.preview-header p { font-size: 12px; opacity: 0.8; }
+.preview-logo-box { background: white; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: center; min-width: 70px; min-height: 38px; flex-shrink: 0; }
+.preview-logo-box img { max-height: 30px; max-width: 90px; object-fit: contain; }
+.preview-logo-box .logo-text { font-size: 12px; font-weight: 700; color: var(--red); }
+.preview-body { padding: 18px; }
+.pv-section { margin-bottom: 16px; }
+.pv-section h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.pv-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #F5F5F5; gap: 10px; }
+.pv-row:last-child { border-bottom: none; }
+.pv-row .pk { color: var(--text2); flex-shrink: 0; }
+.pv-row .pv { font-weight: 600; color: var(--text); text-align: right; }
+.total-stripe { background: #1A1A1A; color: white; border-radius: 10px; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.total-stripe .tl { font-size: 11px; font-weight: 600; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; }
+.total-stripe .tv { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; color: #FF5555; }
+.pgto-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pgto-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--text2); }
+.footer-stripe { background: var(--surface2); border-top: 1px solid var(--border); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+.footer-stripe .fs-left { font-size: 11px; color: var(--text3); }
+.footer-stripe .fs-brand { font-weight: 700; color: var(--red); }
+.med-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.med-table th { background: var(--surface2); padding: 7px 8px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); border-bottom: 1px solid var(--border); }
+.med-table td { padding: 7px 8px; border-bottom: 1px solid #F5F5F5; }
+
+/* ── BANCO DE PROPOSTAS ── */
+.propostas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 10px; }
+.propostas-header h1 { font-size: 22px; font-weight: 700; }
+.btn-nova { display: flex; align-items: center; gap: 6px; padding: 12px 16px; background: var(--red); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.18s; min-height: 48px; white-space: nowrap; }
+.btn-nova:active { background: var(--red-dark); }
+.proposta-card {
+  background: white; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 15px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
+}
+.proposta-card:active { border-color: var(--red); }
+.pc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.pc-num { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.pc-cliente { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.pc-tipo { font-size: 13px; color: var(--text2); }
+.pc-total { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 600; color: var(--red); text-align: right; white-space: nowrap; }
+.pc-data { font-size: 11px; color: var(--text3); margin-top: 2px; text-align: right; }
+.pc-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.pc-btn { padding: 9px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text2); transition: all 0.18s; font-family: 'DM Sans', sans-serif; min-height: 38px; }
+.pc-btn:active { border-color: var(--red); color: var(--red); }
+.pc-btn.danger:active { border-color: #CC0000; color: #CC0000; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-state .ei { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; }
+.loading-state { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+
+/* ── STATUS BADGE ── */
+.status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.status-ativa { background: var(--green-bg); color: var(--green); }
+.status-enviada { background: #E8F0FF; color: #2B5FD4; }
+.status-fechada { background: #F0F0F0; color: var(--text3); }
+
+/* ── SEARCH ── */
+.search-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.search-bar input { flex: 1; }
+.search-bar select { width: 100%; }
+
+/* ── CHECKBOX CONTRATO ── */
+.contrato-check-box {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D0A0A 100%);
+  border-radius: 12px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; cursor: pointer;
+}
+.contrato-check-box label { cursor: pointer; }
+.contrato-check-box .cc-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+.contrato-check-box .cc-title { font-size: 15px; font-weight: 700; color: white; margin-bottom: 3px; }
+.contrato-check-box .cc-sub { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.4; }
+.custom-check { width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.3); border-radius: 6px; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 12px; transition: all 0.2s; }
+.custom-check.on { background: var(--red); border-color: var(--red); }
+.custom-check.on::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
+#contratoCheck { display: none; }
+
+/* ── MODAL CONFIRM ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: flex-end; justify-content: center; padding: 0; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: white; border-radius: 20px 20px 0 0; padding: 28px 24px calc(28px + var(--safe-bottom)); max-width: 500px; width: 100%; }
+.modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal-box p { font-size: 14px; color: var(--text2); margin-bottom: 22px; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btns .btn { flex: 1; padding: 14px; }
+.btn-danger { background: #CC1111; color: white; }
+.btn-danger:active { background: #AA0000; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: calc(24px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(100px); background: #1A1A1A; color: white; padding: 13px 22px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999; transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── PROFILE SAVED ── */
+.profile-saved { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--green-bg); border: 1px solid #A0D4B8; border-radius: 10px; margin-bottom: 16px; }
+.profile-saved .ps-text { font-size: 13px; color: var(--green); font-weight: 600; }
+
+/* ── AVISO INTERNO ── */
+.aviso-interno { background: #FFF8E6; border: 1px solid #F0D080; border-radius: 8px; padding: 10px 13px; font-size: 12px; color: #7A5A00; margin-bottom: 14px; line-height: 1.5; }
+
+/* ── PREVIEW ACTIONS ── */
+.preview-actions { display: flex; flex-direction: column; gap: 10px; }
+.preview-actions .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+@media (max-width: 420px) {
+  .g2 { grid-template-columns: 1fr; }
+  .movel-grid { grid-template-columns: repeat(3, 1fr); }
+  .pgto-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 0 10px; }
+  .nav-tab { padding: 8px 8px; font-size: 11px; }
+  .nav-tab span { display: none; }
+  .preview-body { padding: 14px; }
+  .preview-header { padding: 16px; }
+}
+
+/* ══════════════════════════════════════════
+   WIDGET FLUTUANTE — CALCULADORA + TRENA
+══════════════════════════════════════════ */
+#fabWidget {
+  position: fixed; bottom: calc(28px + var(--safe-bottom)); right: 18px;
+  z-index: 300; display: none;
+}
+.fab-btn {
+  width: 58px; height: 58px; background: var(--red); border-radius: 50%;
+  border: none; cursor: pointer; box-shadow: 0 6px 22px rgba(212,43,43,0.45);
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.fab-btn:active { transform: scale(0.92); }
+.fab-btn.open { background: #1A1A1A; }
+#widgetPanel {
+  position: fixed; bottom: calc(98px + var(--safe-bottom)); right: 12px;
+  width: calc(100vw - 24px); max-width: 340px; background: white;
+  border-radius: 20px; box-shadow: 0 16px 60px rgba(0,0,0,0.22);
+  z-index: 299; overflow: hidden; display: none;
+  animation: widgetIn 0.25s cubic-bezier(0.34,1.4,0.64,1);
+  border: 1.5px solid var(--border);
+}
+@keyframes widgetIn {
+  from { opacity:0; transform: scale(0.88) translateY(20px); transform-origin: bottom right; }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.widget-tabs { display: grid; grid-template-columns: 1fr 1fr; background: #F4F4F4; border-bottom: 1.5px solid var(--border); }
+.widget-tab {
+  padding: 13px 8px; text-align: center; font-size: 13px; font-weight: 700;
+  cursor: pointer; color: var(--text3); border: none; background: none;
+  font-family: "DM Sans", sans-serif; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.widget-tab.active { background: white; color: var(--red); border-bottom: 2.5px solid var(--red); }
+.widget-tab:active { background: var(--red-light); }
+.widget-content { display: none; padding: 14px; }
+.widget-content.active { display: block; }
+/* CALCULADORA */
+.calc-display {
+  background: #1A1A1A; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+  min-height: 70px; position: relative;
+}
+.calc-expr { font-size: 12px; color: #888; min-height: 16px; font-family: "DM Mono",monospace; text-align: right; word-break: break-all; }
+.calc-result { font-family: "DM Mono",monospace; font-size: 30px; font-weight: 500; color: white; text-align: right; line-height: 1.1; word-break: break-all; }
+.calc-hist-btn { position: absolute; top: 8px; left: 10px; font-size: 10px; color: #666; background: none; border: none; cursor: pointer; font-family: "DM Sans",sans-serif; padding: 4px; }
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.ck {
+  padding: 0; height: 52px; border-radius: 11px; border: none;
+  font-family: "DM Mono",monospace; font-size: 17px; font-weight: 600;
+  cursor: pointer; transition: transform 0.1s; display: flex;
+  align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
+}
+.ck:active { transform: scale(0.90); }
+.ck-num  { background: #F4F4F4; color: #1A1A1A; }
+.ck-op   { background: #FFE8E8; color: var(--red); }
+.ck-eq   { background: var(--red); color: white; font-size: 20px; }
+.ck-ac   { background: #1A1A1A; color: white; font-size: 13px; font-family: "DM Sans",sans-serif; }
+.ck-del  { background: #F4F4F4; color: #888; font-size: 20px; }
+.ck-spec { background: #F0F0F0; color: #555; font-size: 12px; font-family: "DM Sans",sans-serif; }
+.calc-history { display: none; max-height: 120px; overflow-y: auto; border-top: 1.5px solid var(--border); margin: 0 -14px; padding: 8px 14px; }
+.calc-history.show { display: block; }
+.hist-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #F5F5F5; font-size: 12px; }
+.hist-item:last-child { border-bottom: none; }
+.hist-expr { color: var(--text3); font-family: "DM Mono",monospace; }
+.hist-val  { color: var(--text); font-weight: 700; font-family: "DM Mono",monospace; cursor: pointer; }
+/* TRENA */
+.trena-title { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+.trena-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 10px; }
+.trena-field label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; display: block; margin-bottom: 4px; }
+.trena-field input {
+  width: 100%; padding: 10px 6px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 16px; font-weight: 700; text-align: center; font-family: "DM Mono",monospace;
+  background: #F8F8F8; color: #1A1A1A; min-height: 46px; outline: none;
+}
+.trena-field input:focus { border-color: var(--red); background: white; }
+.trena-visual {
+  background: #1A1A1A; border-radius: 12px; padding: 14px 14px 10px; margin-bottom: 10px;
+}
+.trena-row { margin-bottom: 10px; }
+.trena-row-label { font-size: 9px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-family: "DM Mono",monospace; }
+.trena-tape-wrap { position: relative; height: 26px; }
+.trena-tape-bg { position: absolute; top: 0; left: 0; right: 0; height: 26px; background: #2A2A2A; border-radius: 5px; }
+.trena-tape-fill {
+  position: absolute; top: 0; left: 0; height: 26px;
+  background: linear-gradient(180deg, #F5C842 0%, #D4A800 100%);
+  border-radius: 5px; min-width: 8px;
+  transition: width 0.5s cubic-bezier(0.34,1.2,0.64,1);
+  overflow: hidden;
+}
+.trena-tape-fill::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0, transparent 8px, rgba(0,0,0,0.18) 8px, rgba(0,0,0,0.18) 9px);
+}
+.trena-tape-text {
+  position: absolute; top: 0; left: 0; right: 0; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "DM Mono",monospace; font-size: 11px; font-weight: 700;
+  color: rgba(0,0,0,0.65); pointer-events: none; z-index: 2;
+}
+.trena-results { background: #F8F8F8; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+.trena-res-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+.trena-res-row:last-child { border-bottom: none; }
+.trena-res-label { font-size: 12px; color: var(--text2); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+.trena-res-val { font-family: "DM Mono",monospace; font-size: 14px; font-weight: 700; color: var(--text); }
+.trena-res-val.red { color: var(--red); }
+.trena-private { background: #1A1A1A; }
+.trena-private .trena-res-label { color: #AAA; font-size: 11px; }
+.trena-private .trena-res-val   { color: #F5C842; }
+.priv-badge { font-size: 9px; background: #333; color: #F5C842; padding: 2px 5px; border-radius: 4px; font-weight: 700; letter-spacing: 0.3px; }
+.trena-btn { width: 100%; padding: 13px; background: var(--red); color: white; border: none; border-radius: 10px; font-family: "DM Sans",sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 8px; min-height: 48px; }
+.trena-btn:active { background: var(--red-dark); transform: scale(0.98); }
+.trena-btn-sec { width: 100%; padding: 10px; background: transparent; color: var(--text3); border: 1.5px solid var(--border); border-radius: 10px; font-family: "DM Sans",sans-serif; font-size: 13px; cursor: pointer; min-height: 44px; }
+
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Fifty<span>+</span></div>
+    <div class="login-sub">Sistema de Propostas para Marceneiros</div>
+
+    <div id="loginForm">
+      <span class="login-label">E-mail</span>
+      <input class="login-input" type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email" inputmode="email">
+      <span class="login-label">Senha</span>
+      <input class="login-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="login-err" id="loginErr"></div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Entrar</button>
+      <div class="login-forgot" onclick="showForgot()">Esqueci minha senha</div>
+      <div style="text-align:center;margin-top:20px;font-size:12px;color:#9A9A9A;line-height:1.6;">Acesso exclusivo para clientes.<br>Adquira em <strong style="color:#D42B2B;">fiftymais.com.br</strong></div>
+    </div>
+
+    <div id="forgotForm" style="display:none">
+      <span class="login-label">E-mail cadastrado</span>
+      <input class="login-input" type="email" id="forgotEmail" placeholder="seu@email.com" inputmode="email">
+      <div class="login-err" id="forgotErr"></div>
+      <button class="login-btn" id="forgotBtn" onclick="doForgot()">Enviar link de recuperação</button>
+      <div class="login-switch"><a onclick="showLogin()">← Voltar ao login</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="appScreen">
+<nav>
+  <div class="nav-logo">Fifty<span>+</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('propostas')">📋 <span>Propostas</span></button>
+    <button class="nav-tab" onclick="showPage('orcamento')">➕ <span>Nova</span></button>
+    <button class="nav-tab" onclick="showPage('perfil')">⚙️ <span>Perfil</span></button>
+  </div>
+  <div class="nav-user">
+    <div class="nav-avatar" id="navAvatar">J</div>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ===================== PÁGINA: PROPOSTAS ===================== -->
+<div class="page active" id="page-propostas">
+  <div class="propostas-header">
+    <div>
+      <h1>Minhas Propostas</h1>
+      <p style="font-size:13px; color:var(--text3); margin-top:2px;" id="totalPropostas">Carregando...</p>
+    </div>
+    <button class="btn-nova" onclick="novaPropostа()">+ Nova</button>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar por cliente ou tipo..." oninput="filtrarPropostas()">
+    <select id="filterStatus" onchange="filtrarPropostas()">
+      <option value="">Todas as propostas</option>
+      <option value="ativa">Ativas</option>
+      <option value="enviada">Enviadas</option>
+      <option value="fechada">Fechadas</option>
+    </select>
+  </div>
+
+  <div id="propostasList">
+    <div class="loading-state">⏳ Carregando propostas...</div>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: ORÇAMENTO ===================== -->
+<div class="page" id="page-orcamento">
+  <div class="sec-head">
+    <h1 id="orcTitle">Nova Proposta</h1>
+    <p>Preencha os dados para gerar a proposta profissional.</p>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-dot active" id="sd1" onclick="goStep(1)"><div class="sd">1</div><span>Cliente</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd2" onclick="goStep(2)"><div class="sd">2</div><span>Móvel</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd3" onclick="goStep(3)"><div class="sd">3</div><span>Medidas</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd4" onclick="goStep(4)"><div class="sd">4</div><span>Valores</span></div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="sd5" onclick="goStep(5)"><div class="sd">5</div><span>Pagamento</span></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-page active" id="step1">
+    <div class="card">
+      <div class="card-head">👤 Dados do Cliente</div>
+      <div class="field"><label>Nome Completo *</label><input type="text" id="c-nome" placeholder="Ex: Maria Fernanda Santos" autocomplete="name"></div>
+      <div class="field"><label>WhatsApp *</label><input type="tel" id="c-wpp" placeholder="(98) 99999-9999" inputmode="tel" autocomplete="tel"></div>
+      <div class="field"><label>CPF do Cliente</label><input type="text" id="c-cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+      <div class="field"><label>Endereço / Local do Serviço</label><input type="text" id="c-end" placeholder="Ex: Rua das Flores, 123 – São Luís, MA" autocomplete="street-address"></div>
+      <div class="field"><label>Complemento / Referência</label><input type="text" id="c-ref" placeholder="Ex: Apto 302, portão azul..."></div>
+    </div>
+    <button class="btn btn-primary" onclick="goStep(2)">Próximo: Tipo de Móvel →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-page" id="step2" style="display:none">
+    <div class="card">
+      <div class="card-head">🪑 Tipo de Móvel</div>
+      <div class="movel-grid" id="movelGrid">
+        <div class="movel-card on" onclick="selectMovel(this,'Cozinha Planejada')"><div class="mi">🍳</div><div class="ml">Cozinha</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Guarda-Roupa')"><div class="mi">🚪</div><div class="ml">Guarda-Roupa</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Home Office')"><div class="mi">💻</div><div class="ml">Home Office</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Closet')"><div class="mi">👔</div><div class="ml">Closet</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Banheiro')"><div class="mi">🚿</div><div class="ml">Banheiro</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Rack / Painel TV')"><div class="mi">📺</div><div class="ml">Rack/Painel</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Quarto Infantil')"><div class="mi">🧸</div><div class="ml">Infantil</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Área de Serviço')"><div class="mi">🧺</div><div class="ml">Área Serviço</div></div>
+        <div class="movel-card" onclick="selectMovel(this,'Móvel Sob Medida')"><div class="mi">📐</div><div class="ml">Sob Medida</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">🎨 Material e Acabamento</div>
+      <div class="field">
+        <label>Chapa Principal</label>
+        <div class="chips" id="chapas">
+          <div class="chip on" onclick="toggleChip(this,'chapas')">MDF 15mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">MDF 18mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">MDP 15mm</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">Compensado</div>
+          <div class="chip" onclick="toggleChip(this,'chapas')">Madeira Maciça</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Acabamento</label>
+        <div class="chips" id="acabs">
+          <div class="chip on" onclick="toggleChip(this,'acabs')">BP Comum</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">BP Premium</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Lacca Fosco</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Lacca Brilho</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">Madeira Natural</div>
+          <div class="chip" onclick="toggleChip(this,'acabs')">PVC</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ferragens</label>
+        <div class="chips" id="ferragens">
+          <div class="chip on" onclick="toggleChip(this,'ferragens')">Básico</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Intermediário</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Importado</div>
+          <div class="chip" onclick="toggleChip(this,'ferragens')">Blum / Hafele</div>
+        </div>
+      </div>
+      <div class="field"><label>Detalhes adicionais</label><textarea id="m-detalhes" rows="2" placeholder="Ex: Puxadores pretos, 3 gavetas na base..."></textarea></div>
+      <div class="field">
+        <label>📷 Fotos de Referência (opcional)</label>
+        <div class="foto-upload-area" id="fotoUploadArea" onclick="document.getElementById('fotosInput').click()">
+          <input type="file" id="fotosInput" accept="image/*" multiple style="display:none" onchange="loadFotos(this)">
+          <div id="fotoPlaceholder"><div style="font-size:28px;margin-bottom:6px;">📷</div><div style="font-size:13px;color:var(--text3);">Toque para adicionar fotos</div></div>
+          <div id="fotoGrid" class="foto-grid" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-page" id="step3" style="display:none">
+    <div class="card">
+      <div class="card-head">📐 Medidas dos Móveis</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Adicione cada peça ou ambiente. Medidas em metros.</p>
+      <div id="medidasList"></div>
+      <button class="btn-add-medida" onclick="addMedida()">＋ Adicionar peça / ambiente</button>
+    </div>
+    <div class="card">
+      <div class="card-head">📅 Prazo de Entrega</div>
+      <div class="g2">
+        <div class="field"><label>Início Previsto</label><input type="date" id="m-inicio"></div>
+        <div class="field"><label>Entrega Prevista</label><input type="date" id="m-entrega"></div>
+      </div>
+      <div class="field"><label>Observação sobre prazo</label><input type="text" id="m-prazo-obs" placeholder="Ex: Prazo conta após aprovação do projeto"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-page" id="step4" style="display:none">
+    <div class="card">
+      <div class="card-head">💰 Custos Internos <span style="font-weight:400;color:var(--text3);font-size:10px;text-transform:none;letter-spacing:0;">🔒 Só você vê</span></div>
+      <div class="aviso-interno">⚠️ O cliente verá <strong>apenas o valor total final</strong>. Este detalhamento é interno e não aparece no orçamento.</div>
+      <div class="field"><label>Materiais (R$)</label><input type="number" id="v-mat" placeholder="0,00" min="0" step="0.01" inputmode="decimal" oninput="calcTotal()"></div>
+      <div class="field"><label>Mão de Obra (R$)</label><input type="number" id="v-mao" placeholder="0,00" min="0" step="0.01" inputmode="decimal" oninput="calcTotal()"></div>
+      <div class="field"><label>Ferragens e Acessórios (R$)</label><input type="number" id="v-ferr" placeholder="0,00" min="0" step="0.01" inputmode="decimal" oninput="calcTotal()"></div>
+      <div class="field"><label>Outros (frete, instalação...) (R$)</label><input type="number" id="v-outros" placeholder="0,00" min="0" step="0.01" inputmode="decimal" oninput="calcTotal()"></div>
+      <div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:4px;">
+        <label>Margem de Lucro (%)</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:5px;">
+          <input type="number" id="v-margem" placeholder="30" min="0" max="500" step="1" value="30" inputmode="numeric" oninput="calcTotal()" style="width:90px;flex:none;">
+          <div style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:12px 13px;font-size:14px;color:var(--text3);">
+            Margem: <strong id="v-margem-val" style="color:var(--red);">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;">Subtotal</span>
+          <span id="v-subtotal-preview" style="font-family:'DM Mono';font-size:14px;color:var(--text2);">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--red-light);border-radius:9px;padding:12px 14px;">
+          <span style="font-size:14px;font-weight:700;color:var(--red);">TOTAL DO CLIENTE</span>
+          <span id="v-total-preview" style="font-family:'DM Mono';font-size:22px;font-weight:700;color:var(--red);">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">✅ Condições e Garantia</div>
+      <div class="field"><label>Garantia oferecida</label><input type="text" id="v-garantia" placeholder="Ex: 1 ano em ferragens, 6 meses em acabamento"></div>
+      <div class="field"><label>O que está incluso</label><textarea id="v-incluso" rows="2" placeholder="Ex: Projeto, material, mão de obra e instalação"></textarea></div>
+      <div class="field"><label>O que NÃO está incluso</label><textarea id="v-excluso" rows="2" placeholder="Ex: Eletrodomésticos, iluminação interna"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(3)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-page" id="step5" style="display:none">
+    <div class="card">
+      <div class="card-head">💳 Formas de Pagamento</div>
+      <div class="pgto-grid">
+        <div class="pgto-card on" onclick="togglePgto(this)"><div class="pi">💵</div><div class="pl">Dinheiro</div></div>
+        <div class="pgto-card on" onclick="togglePgto(this)"><div class="pi">📱</div><div class="pl">PIX</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">💳</div><div class="pl">Cartão Crédito</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">🏦</div><div class="pl">Transferência</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">📋</div><div class="pl">Cheque</div></div>
+        <div class="pgto-card" onclick="togglePgto(this)"><div class="pi">🤝</div><div class="pl">Financiamento</div></div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="field"><label>Condição de pagamento</label><input type="text" id="pg-condicao" placeholder="Ex: 50% na aprovação + 50% na entrega"></div>
+        <div class="field"><label>Chave PIX (opcional)</label><input type="text" id="pg-pix" placeholder="CPF, telefone ou e-mail"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">📝 Observações Finais</div>
+      <textarea id="obs-final" rows="3" placeholder="Qualquer informação extra que o cliente precisa saber..."></textarea>
+    </div>
+
+    <!-- CHECKBOX CONTRATO -->
+    <div class="contrato-check-box" onclick="toggleContrato()">
+      <div class="cc-icon">📋</div>
+      <div style="flex:1;">
+        <div class="cc-title">Incluir Contrato de Serviço</div>
+        <div class="cc-sub">Gera um contrato jurídico preenchido automaticamente com os dados desta proposta. O cliente recebe o contrato separado do orçamento.</div>
+      </div>
+      <div class="custom-check" id="contratoCheckBox"></div>
+      <input type="checkbox" id="contratoCheck">
+    </div>
+
+    <button class="btn btn-green" id="btnSalvar" onclick="salvarProposta()" style="margin-top:14px;">
+      💾 Salvar e Gerar Proposta
+    </button>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: PREVIEW ===================== -->
+<div class="page" id="page-preview">
+  <div class="sec-head">
+    <h1>Proposta Gerada ✅</h1>
+    <p>Revise, baixe o PDF ou envie direto ao cliente.</p>
+  </div>
+
+  <div class="preview-box" id="previewBox">
+    <div class="preview-header">
+      <div>
+        <h2 id="pv-titulo">Proposta de Serviço</h2>
+        <p id="pv-num">Nº 001</p>
+        <p id="pv-validade-txt" style="opacity:0.7;margin-top:2px;font-size:11px;">Válido por 15 dias</p>
+      </div>
+      <div class="preview-logo-box" id="pvLogoBox">
+        <div class="logo-text" id="pvLogoText">—</div>
+      </div>
+    </div>
+    <div class="preview-body">
+
+      <!-- MARCENEIRO -->
+      <div class="pv-section">
+        <h3>🪚 Marceneiro</h3>
+        <div class="pv-row"><span class="pk">Nome</span><span class="pv" id="pv-marc-nome">—</span></div>
+        <div class="pv-row"><span class="pk">WhatsApp</span><span class="pv" id="pv-marc-wpp">—</span></div>
+        <div class="pv-row"><span class="pk">Cidade</span><span class="pv" id="pv-marc-cidade">—</span></div>
+        <div class="pv-row" id="pv-marc-insta-row"><span class="pk">Instagram</span><span class="pv" id="pv-marc-insta">—</span></div>
+      </div>
+
+      <!-- CLIENTE -->
+      <div class="pv-section">
+        <h3>👤 Cliente</h3>
+        <div class="pv-row"><span class="pk">Nome</span><span class="pv" id="pv-c-nome">—</span></div>
+        <div class="pv-row"><span class="pk">WhatsApp</span><span class="pv" id="pv-c-wpp">—</span></div>
+        <div class="pv-row" id="pv-c-cpf-row"><span class="pk">CPF</span><span class="pv" id="pv-c-cpf">—</span></div>
+        <div class="pv-row"><span class="pk">Endereço</span><span class="pv" id="pv-c-end">—</span></div>
+        <div class="pv-row" id="pv-c-ref-row"><span class="pk">Referência</span><span class="pv" id="pv-c-ref">—</span></div>
+      </div>
+
+      <!-- SERVIÇO -->
+      <div class="pv-section">
+        <h3>🪑 Serviço</h3>
+        <div class="pv-row"><span class="pk">Tipo</span><span class="pv" id="pv-tipo">—</span></div>
+        <div class="pv-row"><span class="pk">Material</span><span class="pv" id="pv-mat">—</span></div>
+        <div class="pv-row"><span class="pk">Acabamento</span><span class="pv" id="pv-acab">—</span></div>
+        <div class="pv-row"><span class="pk">Ferragens</span><span class="pv" id="pv-ferr">—</span></div>
+        <div class="pv-row" id="pv-det-row"><span class="pk">Detalhes</span><span class="pv" id="pv-det">—</span></div>
+      </div>
+
+      <!-- MEDIDAS -->
+      <div class="pv-section" id="pv-med-section">
+        <h3>📐 Medidas</h3>
+        <table class="med-table"><thead><tr><th>Peça / Ambiente</th><th>Larg.</th><th>Alt.</th><th>Prof.</th></tr></thead><tbody id="pv-med-body"></tbody></table>
+      </div>
+
+      <!-- PRAZO -->
+      <div class="pv-section">
+        <h3>📅 Prazo</h3>
+        <div class="pv-row"><span class="pk">Início</span><span class="pv" id="pv-inicio">—</span></div>
+        <div class="pv-row"><span class="pk">Entrega</span><span class="pv" id="pv-entrega">—</span></div>
+        <div class="pv-row" id="pv-prazo-obs-row"><span class="pk">Observação</span><span class="pv" id="pv-prazo-obs">—</span></div>
+      </div>
+
+      <!-- TOTAL -->
+      <div class="total-stripe">
+        <div>
+          <div class="tl">Valor Total do Serviço</div>
+        </div>
+        <div class="tv" id="pv-total">R$ 0,00</div>
+      </div>
+
+      <!-- PAGAMENTO -->
+      <div class="pv-section" style="margin-top:16px;">
+        <h3>💳 Pagamento</h3>
+        <div class="pgto-pills" id="pv-pgto-pills"></div>
+        <div class="pv-row" style="margin-top:10px;" id="pv-condicao-row"><span class="pk">Condição</span><span class="pv" id="pv-condicao">—</span></div>
+        <div class="pv-row" id="pv-pix-row"><span class="pk">PIX</span><span class="pv" id="pv-pix">—</span></div>
+      </div>
+
+      <!-- GARANTIA -->
+      <div class="pv-section">
+        <h3>✅ Condições e Garantia</h3>
+        <div class="pv-row" id="pv-garantia-row"><span class="pk">Garantia</span><span class="pv" id="pv-garantia">—</span></div>
+        <div class="pv-row" id="pv-incluso-row"><span class="pk">Incluso</span><span class="pv" id="pv-incluso">—</span></div>
+        <div class="pv-row" id="pv-excluso-row"><span class="pk">Não incluso</span><span class="pv" id="pv-excluso">—</span></div>
+      </div>
+
+      <div id="pv-fotos-section" class="pv-section" style="display:none;"></div>
+      <div id="pv-obs-section" style="background:#FFF8E6;border:1px solid #F0D080;border-radius:9px;padding:12px 14px;font-size:13px;color:#7A5A00;margin-top:4px;line-height:1.5;display:none;">
+        <strong>📝 Observações:</strong> <span id="pv-obs"></span>
+      </div>
+      <div id="pv-rodape-section" style="background:#F5F5F5;border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--text3);margin-top:10px;line-height:1.5;display:none;">
+        <span id="pv-rodape"></span>
+      </div>
+    </div>
+    <div class="footer-stripe">
+      <div class="fs-left">Gerado por <span class="fs-brand">Fifty+</span></div>
+      <div style="font-size:11px;color:var(--text3);" id="pv-footer-date">—</div>
+    </div>
+  </div>
+
+  <!-- AÇÕES -->
+  <div class="preview-actions">
+    <button class="btn btn-primary" onclick="gerarPDF()">📄 Baixar Orçamento (PDF)</button>
+    <div id="btnContratoWrapper" style="display:none;">
+      <button class="btn" onclick="gerarContratoPDF()" style="background:#1A1A1A;color:white;">📋 Baixar Contrato (PDF)</button>
+    </div>
+    <div class="btn-row-2">
+      <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Orçamento
+      </button>
+      <button class="btn btn-whatsapp" id="btnContratoWpp" onclick="enviarContratoWhatsApp()" style="display:none;background:#128C7E;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Contrato
+      </button>
+    </div>
+    <button class="btn btn-outline" onclick="showPage('propostas')">← Voltar para Propostas</button>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA: PERFIL ===================== -->
+<div class="page" id="page-perfil">
+  <div class="sec-head"><h1>Seu Perfil</h1><p>Cadastre uma vez. Aparece em todas as propostas.</p></div>
+  <div id="profileSavedMsg" style="display:none">
+    <div class="profile-saved"><span style="font-size:20px;">✅</span><div class="ps-text">Perfil salvo com sucesso!</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">🪚 Dados da Marcenaria</div>
+    <div class="field"><label>Nome da Marcenaria *</label><input type="text" id="p-nome" placeholder="Ex: Marcenaria do João Silva"></div>
+    <div class="field"><label>CPF / CNPJ *</label><input type="text" id="p-cpf" placeholder="000.000.000-00 ou 00.000.000/0001-00" inputmode="numeric"></div>
+    <div class="g2">
+      <div class="field"><label>WhatsApp *</label><input type="tel" id="p-wpp" placeholder="(98) 99999-9999" inputmode="tel"></div>
+      <div class="field"><label>Cidade / Estado *</label><input type="text" id="p-cidade" placeholder="São Luís, MA"></div>
+    </div>
+    <div class="field"><label>Endereço Completo</label><input type="text" id="p-endereco" placeholder="Rua, número, bairro, cidade"></div>
+    <div class="field"><label>Instagram (opcional)</label><input type="text" id="p-insta" placeholder="@marcenaria_joao"></div>
+    <div class="field"><label>Especialidade</label><input type="text" id="p-esp" placeholder="Ex: Móveis planejados residenciais"></div>
+  </div>
+  <div class="card">
+    <div class="card-head">🖼️ Logo da Marcenaria</div>
+    <div class="logo-area" id="logoArea">
+      <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(this)">
+      <div class="placeholder" id="logoPlaceholder"><span>🏷️</span>Toque para fazer upload da logo</div>
+      <img id="logoPreview" style="display:none">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">⏱️ Padrão de Prazo</div>
+    <div class="g2">
+      <div class="field"><label>Prazo Mín. (dias)</label><input type="number" id="p-prazo-min" value="20" inputmode="numeric"></div>
+      <div class="field"><label>Prazo Máx. (dias)</label><input type="number" id="p-prazo-max" value="45" inputmode="numeric"></div>
+    </div>
+    <div class="field"><label>Validade do Orçamento (dias)</label><input type="number" id="p-validade" value="15" inputmode="numeric"></div>
+  </div>
+  <div class="card">
+    <div class="card-head">📝 Rodapé Padrão</div>
+    <textarea id="p-rodape" rows="2" placeholder="Ex: Garantia de 1 ano em ferragens. Instalação inclusa."></textarea>
+  </div>
+  <button class="btn btn-primary" onclick="salvarPerfil()">💾 Salvar Perfil</button>
+</div>
+
+</div><!-- end wrap -->
+</div><!-- end appScreen -->
+
+<!-- ── MODAL CONFIRMAR EXCLUSÃO ── -->
+<div class="modal-overlay" id="modalDelete" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>Excluir proposta?</h3>
+    <p>Esta ação não pode ser desfeita. A proposta será removida permanentemente.</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     WIDGET FLUTUANTE — CALCULADORA + TRENA
+══════════════════════════════════════════ -->
+<div id="fabWidget">
+  <!-- Painel -->
+  <div id="widgetPanel">
+    <!-- Abas -->
+    <div class="widget-tabs">
+      <button class="widget-tab active" id="tabCalc" onclick="switchWidget('calc')">🧮 Calculadora</button>
+      <button class="widget-tab" id="tabTrena" onclick="switchWidget('trena')">📏 Trena</button>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div class="widget-content active" id="wCalc">
+      <div class="calc-display">
+        <button class="calc-hist-btn" onclick="toggleCalcHist()">📋 Histórico</button>
+        <div class="calc-expr" id="calcExpr"></div>
+        <div class="calc-result" id="calcResult">0</div>
+      </div>
+      <div class="calc-history" id="calcHistory"></div>
+      <div class="calc-grid">
+        <!-- Linha 1 -->
+        <button class="ck ck-ac"   onclick="calcAC()">AC</button>
+        <button class="ck ck-spec" onclick="calcOp('(')">(</button>
+        <button class="ck ck-spec" onclick="calcOp(')')">)</button>
+        <button class="ck ck-op"   onclick="calcOp('%')">%</button>
+        <!-- Linha 2 -->
+        <button class="ck ck-num" onclick="calcNum('7')">7</button>
+        <button class="ck ck-num" onclick="calcNum('8')">8</button>
+        <button class="ck ck-num" onclick="calcNum('9')">9</button>
+        <button class="ck ck-op"  onclick="calcOp('÷')">÷</button>
+        <!-- Linha 3 -->
+        <button class="ck ck-num" onclick="calcNum('4')">4</button>
+        <button class="ck ck-num" onclick="calcNum('5')">5</button>
+        <button class="ck ck-num" onclick="calcNum('6')">6</button>
+        <button class="ck ck-op"  onclick="calcOp('×')">×</button>
+        <!-- Linha 4 -->
+        <button class="ck ck-num" onclick="calcNum('1')">1</button>
+        <button class="ck ck-num" onclick="calcNum('2')">2</button>
+        <button class="ck ck-num" onclick="calcNum('3')">3</button>
+        <button class="ck ck-op"  onclick="calcOp('−')">−</button>
+        <!-- Linha 5 -->
+        <button class="ck ck-num" style="grid-column:span 2" onclick="calcNum('0')">0</button>
+        <button class="ck ck-num" onclick="calcNum(',')">.</button>
+        <button class="ck ck-op"  onclick="calcOp('+')">+</button>
+        <!-- Linha 6 -->
+        <button class="ck ck-del" style="grid-column:span 2" onclick="calcDel()">⌫</button>
+        <button class="ck ck-eq"  style="grid-column:span 2" onclick="calcEqual()">=</button>
+      </div>
+    </div>
+
+    <!-- TRENA -->
+    <div class="widget-content" id="wTrena">
+      <div class="trena-title">📏 Trena Virtual</div>
+      <div class="trena-inputs">
+        <div class="trena-field">
+          <label>Larg. (m)</label>
+          <input type="number" id="trL" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="calcTrena()">
+        </div>
+        <div class="trena-field">
+          <label>Alt. (m)</label>
+          <input type="number" id="trA" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="calcTrena()">
+        </div>
+        <div class="trena-field">
+          <label>Prof. (m)</label>
+          <input type="number" id="trP" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="calcTrena()">
+        </div>
+      </div>
+
+      <!-- Visual da trena -->
+      <div class="trena-visual">
+        <div class="trena-row">
+          <div class="trena-row-label">Largura</div>
+          <div class="trena-tape-wrap">
+            <div class="trena-tape-bg"></div>
+            <div class="trena-tape-fill" id="tapeL" style="width:8px"></div>
+            <div class="trena-tape-text" id="tapeLtxt">—</div>
+          </div>
+        </div>
+        <div class="trena-row">
+          <div class="trena-row-label">Altura</div>
+          <div class="trena-tape-wrap">
+            <div class="trena-tape-bg"></div>
+            <div class="trena-tape-fill" id="tapeA" style="width:8px"></div>
+            <div class="trena-tape-text" id="tapeAtxt">—</div>
+          </div>
+        </div>
+        <div class="trena-row" style="margin-bottom:0">
+          <div class="trena-row-label">Profundidade</div>
+          <div class="trena-tape-wrap">
+            <div class="trena-tape-bg"></div>
+            <div class="trena-tape-fill" id="tapeP" style="width:8px"></div>
+            <div class="trena-tape-text" id="tapePtxt">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div class="trena-results" id="trenaResults">
+        <div class="trena-res-row">
+          <span class="trena-res-label">📐 Área frontal (L×A)</span>
+          <span class="trena-res-val red" id="trArea">—</span>
+        </div>
+        <div class="trena-res-row">
+          <span class="trena-res-label">📦 Volume (L×A×P)</span>
+          <span class="trena-res-val" id="trVol">—</span>
+        </div>
+        <div class="trena-res-row">
+          <span class="trena-res-label">📏 Perímetro (2×L + 2×A)</span>
+          <span class="trena-res-val" id="trPerim">—</span>
+        </div>
+        <!-- PRIVADO: chapas de MDF -->
+        <div class="trena-res-row trena-private">
+          <span class="trena-res-label">
+            🪵 Chapas MDF 2.75×1.84m
+            <span class="priv-badge">🔒 INTERNO</span>
+          </span>
+          <span class="trena-res-val" id="trChapas">—</span>
+        </div>
+        <div class="trena-res-row trena-private">
+          <span class="trena-res-label">
+            💡 MDF estimado (m²)
+            <span class="priv-badge">🔒 INTERNO</span>
+          </span>
+          <span class="trena-res-val" id="trM2">—</span>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <button class="trena-btn-sec" onclick="limparTrena()">🗑 Limpar medidas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão FAB -->
+  <button class="fab-btn" id="fabBtn" onclick="toggleWidget()" title="Calculadora e Trena">
+    🧮
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// SUPABASE INIT
+// ═══════════════════════════════════════════
+const SUPABASE_URL = 'https://toibffvqhvpflhakhyls.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvaWJmZnZxaHZwZmxoYWtoeWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTgyMDEsImV4cCI6MjA4NzA5NDIwMX0.G8ffvH1ImjfvGFSP0dnCiXHZCfrpjqYvsa5FidfkGGM';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let currentUser = null;
+let currentProfile = {};
+let logoData = null;
+let movelSelecionado = 'Cozinha Planejada';
+let medidas = [];
+let fotosData = [];
+let allPropostas = [];
+let editingId = null;
+let deleteTargetId = null;
+let orcNumBase = 1;
+let incluirContrato = false;
+let currentPropostaData = {}; // para contrato
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) return showErr('loginErr', 'Preencha e-mail e senha.');
+  setBtn('loginBtn', true, 'Entrando...');
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  setBtn('loginBtn', false, 'Entrar');
+  if (error) return showErr('loginErr', traduzirErro(error.message));
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return showErr('forgotErr', 'Digite seu e-mail.');
+  setBtn('forgotBtn', true, 'Enviando...');
+  const { error } = await sb.auth.resetPasswordForEmail(email);
+  setBtn('forgotBtn', false, 'Enviar link de recuperação');
+  if (error) return showErr('forgotErr', traduzirErro(error.message));
+  showErr('forgotErr', '✅ Link enviado! Verifique seu e-mail.', true);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function showLogin() { document.getElementById('loginForm').style.display='block'; document.getElementById('forgotForm').style.display='none'; }
+function showForgot() { document.getElementById('loginForm').style.display='none'; document.getElementById('forgotForm').style.display='block'; }
+
+function traduzirErro(msg) {
+  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('already registered')) return 'E-mail já cadastrado.';
+  if (msg.includes('Password should')) return 'Senha muito curta (mínimo 6 caracteres).';
+  return msg;
+}
+
+function showErr(id, msg, isSuccess = false) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isSuccess ? '#E6F4ED' : '#FFF0F0';
+  el.style.borderColor = isSuccess ? '#A0D4B8' : '#FFB3B3';
+  el.style.color = isSuccess ? '#1A7A4A' : 'var(--red)';
+}
+
+function setBtn(id, disabled, text) {
+  const el = document.getElementById(id);
+  el.disabled = disabled;
+  el.textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// SESSION
+// ═══════════════════════════════════════════
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    const initials = (session.user.user_metadata?.nome || session.user.email || 'U')[0].toUpperCase();
+    document.getElementById('navAvatar').textContent = initials;
+    showFab();
+    await carregarPerfil();
+    await carregarPropostas();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+    hideFab();
+  }
+});
+
+// ═══════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['propostas','orcamento','perfil'].indexOf(id) === i);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════
+// PERFIL
+// ═══════════════════════════════════════════
+async function salvarPerfil() {
+  if (!currentUser) return;
+  const data = {
+    id: currentUser.id,
+    nome: v('p-nome'), wpp: v('p-wpp'), cidade: v('p-cidade'),
+    insta: v('p-insta'), especialidade: v('p-esp'),
+    cpf: v('p-cpf'), endereco: v('p-endereco'),
+    prazo_min: parseInt(v('p-prazo-min')) || 20,
+    prazo_max: parseInt(v('p-prazo-max')) || 45,
+    validade: parseInt(v('p-validade')) || 15,
+    rodape: v('p-rodape'), logo: logoData
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast('❌ Erro ao salvar: ' + error.message); return; }
+  currentProfile = data;
+  document.getElementById('profileSavedMsg').style.display = 'block';
+  toast('✅ Perfil salvo!');
+  setTimeout(() => { document.getElementById('profileSavedMsg').style.display = 'none'; }, 3000);
+}
+
+async function carregarPerfil() {
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!data) return;
+  currentProfile = data;
+  set('p-nome', data.nome); set('p-wpp', data.wpp); set('p-cidade', data.cidade);
+  set('p-insta', data.insta); set('p-esp', data.especialidade);
+  set('p-cpf', data.cpf || ''); set('p-endereco', data.endereco || '');
+  set('p-prazo-min', data.prazo_min); set('p-prazo-max', data.prazo_max);
+  set('p-validade', data.validade); set('p-rodape', data.rodape);
+  if (data.logo) {
+    logoData = data.logo;
+    document.getElementById('logoPreview').src = data.logo;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  }
+}
+
+function loadLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    logoData = e.target.result;
+    document.getElementById('logoPreview').src = logoData;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — LISTAR
+// ═══════════════════════════════════════════
+async function carregarPropostas() {
+  if (!currentUser) return;
+  const { data, error } = await sb.from('propostas')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (error) { document.getElementById('propostasList').innerHTML = '<div class="loading-state">❌ Erro ao carregar propostas.</div>'; return; }
+  allPropostas = data || [];
+  orcNumBase = allPropostas.length + 1;
+  renderPropostas(allPropostas);
+}
+
+function renderPropostas(lista) {
+  const el = document.getElementById('propostasList');
+  const total = document.getElementById('totalPropostas');
+  total.textContent = `${lista.length} proposta${lista.length !== 1 ? 's' : ''} encontrada${lista.length !== 1 ? 's' : ''}`;
+  if (lista.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="ei">📋</div><p>Nenhuma proposta ainda.<br>Toque em <strong>+ Nova</strong> para começar.</p></div>`;
+    return;
+  }
+  el.innerHTML = lista.map(p => {
+    const num = String(p.numero || 1).padStart(3, '0');
+    const data = new Date(p.created_at).toLocaleDateString('pt-BR');
+    const status = p.status || 'ativa';
+    return `
+    <div class="proposta-card" id="pc-${p.id}">
+      <div class="pc-top">
+        <div>
+          <div class="pc-num">#${num} · ${data}</div>
+          <div class="pc-cliente">${p.cliente_nome || 'Cliente não informado'}</div>
+          <div class="pc-tipo">${p.tipo_movel || '—'}</div>
+          <div style="margin-top:6px;">
+            <span class="status-badge status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+          </div>
+        </div>
+        <div>
+          <div class="pc-total">${fmt(p.v_total || 0)}</div>
+          <div class="pc-data">${p.tipo_movel || ''}</div>
+        </div>
+      </div>
+      <div class="pc-actions">
+        <button class="pc-btn" onclick="visualizarProposta('${p.id}');event.stopPropagation()">👁 Ver</button>
+        <button class="pc-btn" onclick="editarProposta('${p.id}');event.stopPropagation()">✏️ Editar</button>
+        <button class="pc-btn" onclick="reenviarWhatsApp('${p.id}');event.stopPropagation()">📱 WhatsApp</button>
+        <button class="pc-btn danger" onclick="deletarProposta('${p.id}');event.stopPropagation()">🗑 Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarPropostas() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const filtradas = allPropostas.filter(p => {
+    const matchQ = !q || (p.cliente_nome || '').toLowerCase().includes(q) || (p.tipo_movel || '').toLowerCase().includes(q);
+    const matchS = !status || p.status === status;
+    return matchQ && matchS;
+  });
+  renderPropostas(filtradas);
+}
+
+// ═══════════════════════════════════════════
+// CONTRATO TOGGLE
+// ═══════════════════════════════════════════
+function toggleContrato() {
+  incluirContrato = !incluirContrato;
+  const box = document.getElementById('contratoCheckBox');
+  box.classList.toggle('on', incluirContrato);
+  document.getElementById('contratoCheck').checked = incluirContrato;
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — SALVAR
+// ═══════════════════════════════════════════
+async function salvarProposta() {
+  if (!currentUser) return;
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+
+  const mat = parseFloat(v('v-mat')) || 0;
+  const mao = parseFloat(v('v-mao')) || 0;
+  const ferrV = parseFloat(v('v-ferr')) || 0;
+  const out = parseFloat(v('v-outros')) || 0;
+  const marg = parseFloat(v('v-margem')) || 0;
+  const sub = mat + mao + ferrV + out;
+  const total = sub + sub * (marg / 100);
+
+  const medsData = medidas.map(id => ({
+    nome: document.getElementById('mn-' + id)?.value || '',
+    l: document.getElementById('ml-' + id)?.value || '',
+    a: document.getElementById('ma-' + id)?.value || '',
+    p: document.getElementById('mp-' + id)?.value || ''
+  })).filter(m => m.nome || m.l);
+
+  const pgtos = [...document.querySelectorAll('.pgto-card.on')].map(c => c.querySelector('.pl').textContent);
+
+  const payload = {
+    user_id: currentUser.id,
+    numero: editingId ? undefined : orcNumBase,
+    cliente_nome: v('c-nome'), cliente_wpp: v('c-wpp'),
+    cliente_end: v('c-end'), cliente_ref: v('c-ref'),
+    cliente_cpf: v('c-cpf'),
+    tipo_movel: movelSelecionado,
+    chapa: document.querySelector('#chapas .chip.on')?.textContent || '',
+    acabamento: document.querySelector('#acabs .chip.on')?.textContent || '',
+    ferragens: document.querySelector('#ferragens .chip.on')?.textContent || '',
+    detalhes: v('m-detalhes'),
+    medidas: medsData,
+    fotos: fotosData,
+    inicio: v('m-inicio') || null,
+    entrega: v('m-entrega') || null,
+    prazo_obs: v('m-prazo-obs'),
+    v_mat: mat, v_mao: mao, v_ferr: ferrV, v_outros: out,
+    v_margem: marg, v_total: total,
+    garantia: v('v-garantia'), incluso: v('v-incluso'), excluso: v('v-excluso'),
+    pgto_formas: pgtos, pgto_condicao: v('pg-condicao'), pgto_pix: v('pg-pix'),
+    obs_final: v('obs-final'),
+    status: 'ativa',
+    updated_at: new Date().toISOString()
+  };
+
+  let error;
+  if (editingId) {
+    ({ error } = await sb.from('propostas').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await sb.from('propostas').insert(payload));
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Salvar e Gerar Proposta';
+  if (error) { toast('❌ Erro: ' + error.message); return; }
+
+  toast(editingId ? '✅ Proposta atualizada!' : '✅ Proposta salva!');
+  editingId = null;
+  await carregarPropostas();
+  montarPreview();
+
+  // Mostrar/ocultar botões de contrato
+  const comContrato = incluirContrato;
+  document.getElementById('btnContratoWrapper').style.display = comContrato ? 'block' : 'none';
+  document.getElementById('btnContratoWpp').style.display = comContrato ? 'flex' : 'none';
+
+  showPage('preview');
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS — VISUALIZAR / EDITAR / DELETAR
+// ═══════════════════════════════════════════
+function visualizarProposta(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  carregarFormDeProposta(p);
+  montarPreviewDeProposta(p);
+  currentPropostaData = p;
+  document.getElementById('btnContratoWrapper').style.display = 'none';
+  document.getElementById('btnContratoWpp').style.display = 'none';
+  showPage('preview');
+}
+
+function editarProposta(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  carregarFormDeProposta(p);
+  document.getElementById('orcTitle').textContent = 'Editar Proposta';
+  document.getElementById('btnSalvar').textContent = '💾 Salvar Alterações';
+  goStep(1);
+  showPage('orcamento');
+}
+
+function carregarFormDeProposta(p) {
+  set('c-nome', p.cliente_nome); set('c-wpp', p.cliente_wpp);
+  set('c-end', p.cliente_end); set('c-ref', p.cliente_ref);
+  set('c-cpf', p.cliente_cpf || '');
+  movelSelecionado = p.tipo_movel || 'Cozinha Planejada';
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => c.classList.remove('on'));
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => {
+    const labels = {'Cozinha Planejada':'Cozinha','Guarda-Roupa':'Guarda-Roupa','Home Office':'Home Office','Closet':'Closet','Banheiro':'Banheiro','Rack / Painel TV':'Rack/Painel','Quarto Infantil':'Infantil','Área de Serviço':'Área Serviço','Móvel Sob Medida':'Sob Medida'};
+    if (c.querySelector('.ml').textContent === (labels[p.tipo_movel] || p.tipo_movel)) c.classList.add('on');
+  });
+  setChip('chapas', p.chapa); setChip('acabs', p.acabamento); setChip('ferragens', p.ferragens);
+  set('m-detalhes', p.detalhes);
+  fotosData = p.fotos || [];
+  renderFotoGrid();
+  medidas = [];
+  document.getElementById('medidasList').innerHTML = '';
+  (p.medidas || []).forEach(m => addMedida(m.nome, m.l, m.a, m.p));
+  set('m-inicio', p.inicio || ''); set('m-entrega', p.entrega || '');
+  set('m-prazo-obs', p.prazo_obs);
+  set('v-mat', p.v_mat || ''); set('v-mao', p.v_mao || '');
+  set('v-ferr', p.v_ferr || ''); set('v-outros', p.v_outros || '');
+  set('v-margem', p.v_margem ?? 30);
+  set('v-garantia', p.garantia); set('v-incluso', p.incluso); set('v-excluso', p.excluso);
+  document.querySelectorAll('.pgto-card').forEach(c => {
+    c.classList.toggle('on', (p.pgto_formas || []).includes(c.querySelector('.pl').textContent));
+  });
+  set('pg-condicao', p.pgto_condicao); set('pg-pix', p.pgto_pix);
+  set('obs-final', p.obs_final);
+  calcTotal();
+}
+
+function setChip(group, value) {
+  document.querySelectorAll(`#${group} .chip`).forEach(c => {
+    c.classList.toggle('on', c.textContent === value);
+  });
+}
+
+function deletarProposta(id) {
+  deleteTargetId = id;
+  document.getElementById('modalDelete').classList.add('show');
+}
+
+async function confirmarDelete() {
+  if (!deleteTargetId) return;
+  const { error } = await sb.from('propostas').delete().eq('id', deleteTargetId);
+  closeModal();
+  if (error) { toast('❌ Erro ao excluir.'); return; }
+  toast('🗑 Proposta excluída.');
+  deleteTargetId = null;
+  await carregarPropostas();
+}
+
+function closeModal() {
+  document.getElementById('modalDelete').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════
+// PREVIEW
+// ═══════════════════════════════════════════
+function montarPreview() {
+  const mat = parseFloat(v('v-mat')) || 0;
+  const mao = parseFloat(v('v-mao')) || 0;
+  const ferrV = parseFloat(v('v-ferr')) || 0;
+  const out = parseFloat(v('v-outros')) || 0;
+  const marg = parseFloat(v('v-margem')) || 0;
+  const sub = mat + mao + ferrV + out;
+  const total = sub + sub * (marg / 100);
+
+  const p = {
+    cliente_nome: v('c-nome'), cliente_wpp: v('c-wpp'),
+    cliente_cpf: v('c-cpf'),
+    cliente_end: v('c-end'), cliente_ref: v('c-ref'),
+    tipo_movel: movelSelecionado,
+    chapa: document.querySelector('#chapas .chip.on')?.textContent || '',
+    acabamento: document.querySelector('#acabs .chip.on')?.textContent || '',
+    ferragens: document.querySelector('#ferragens .chip.on')?.textContent || '',
+    detalhes: v('m-detalhes'),
+    medidas: medidas.map(id => ({ nome: document.getElementById('mn-'+id)?.value||'', l: document.getElementById('ml-'+id)?.value||'', a: document.getElementById('ma-'+id)?.value||'', p: document.getElementById('mp-'+id)?.value||'' })),
+    inicio: v('m-inicio'), entrega: v('m-entrega'), prazo_obs: v('m-prazo-obs'),
+    v_total: total,
+    pgto_formas: [...document.querySelectorAll('.pgto-card.on')].map(c => c.querySelector('.pl').textContent),
+    pgto_condicao: v('pg-condicao'), pgto_pix: v('pg-pix'),
+    garantia: v('v-garantia'), incluso: v('v-incluso'), excluso: v('v-excluso'),
+    obs_final: v('obs-final'),
+    numero: editingId ? (allPropostas.find(x=>x.id===editingId)?.numero || 1) : orcNumBase,
+    created_at: new Date().toISOString()
+  };
+  currentPropostaData = p;
+  montarPreviewDeProposta(p);
+}
+
+function montarPreviewDeProposta(p) {
+  const hoje = new Date(p.created_at || Date.now()).toLocaleDateString('pt-BR');
+  const num = '#' + String(p.numero || 1).padStart(3,'0');
+
+  set2('pv-titulo', `Proposta – ${p.tipo_movel || ''}`);
+  set2('pv-num', `${num} · ${hoje}`);
+  set2('pv-footer-date', `Emitido em ${hoje}`);
+  set2('pv-validade-txt', `Válido por ${currentProfile.validade || 15} dias`);
+
+  const pvLogoBox = document.getElementById('pvLogoBox');
+  const logo = logoData || currentProfile.logo;
+  pvLogoBox.innerHTML = logo
+    ? `<img src="${logo}" style="max-height:30px;max-width:90px;object-fit:contain;">`
+    : `<div class="logo-text">${currentProfile.nome || 'Marcenaria'}</div>`;
+
+  set2('pv-marc-nome', currentProfile.nome || '—');
+  set2('pv-marc-wpp', currentProfile.wpp || '—');
+  set2('pv-marc-cidade', currentProfile.cidade || '—');
+  set2('pv-marc-insta', currentProfile.insta || '');
+  toggle('pv-marc-insta-row', !!currentProfile.insta);
+
+  set2('pv-c-nome', p.cliente_nome || '—');
+  set2('pv-c-wpp', p.cliente_wpp || '—');
+  set2('pv-c-cpf', p.cliente_cpf || '');
+  toggle('pv-c-cpf-row', !!p.cliente_cpf);
+  set2('pv-c-end', p.cliente_end || '—');
+  set2('pv-c-ref', p.cliente_ref || '');
+  toggle('pv-c-ref-row', !!p.cliente_ref);
+
+  set2('pv-tipo', p.tipo_movel || '—');
+  set2('pv-mat', p.chapa || '—');
+  set2('pv-acab', p.acabamento || '—');
+  set2('pv-ferr', p.ferragens || '—');
+  set2('pv-det', p.detalhes || '');
+  toggle('pv-det-row', !!p.detalhes);
+
+  const tbody = document.getElementById('pv-med-body');
+  tbody.innerHTML = '';
+  let hasM = false;
+  (p.medidas || []).forEach(m => {
+    if (m.nome || m.l) {
+      hasM = true;
+      tbody.innerHTML += `<tr><td>${m.nome||'—'}</td><td>${m.l?m.l+'m':'—'}</td><td>${m.a?m.a+'m':'—'}</td><td>${m.p?m.p+'m':'—'}</td></tr>`;
+    }
+  });
+  toggle('pv-med-section', hasM);
+
+  const ini = p.inicio ? new Date(p.inicio+'T12:00').toLocaleDateString('pt-BR') : '—';
+  const ent = p.entrega ? new Date(p.entrega+'T12:00').toLocaleDateString('pt-BR') : '—';
+  set2('pv-inicio', ini); set2('pv-entrega', ent);
+  set2('pv-prazo-obs', p.prazo_obs || '');
+  toggle('pv-prazo-obs-row', !!p.prazo_obs);
+
+  set2('pv-total', fmt(p.v_total || 0));
+
+  const pills = document.getElementById('pv-pgto-pills');
+  pills.innerHTML = (p.pgto_formas || []).map(f => `<div class="pgto-pill">${f}</div>`).join('');
+  set2('pv-condicao', p.pgto_condicao || '—');
+  toggle('pv-condicao-row', !!(p.pgto_condicao));
+  set2('pv-pix', p.pgto_pix || '');
+  toggle('pv-pix-row', !!p.pgto_pix);
+
+  set2('pv-garantia', p.garantia || '—');
+  set2('pv-incluso', p.incluso || '—');
+  set2('pv-excluso', p.excluso || '—');
+
+  const pvFotos = document.getElementById('pv-fotos-section');
+  const fotos = p.fotos || fotosData;
+  if (fotos && fotos.length > 0) {
+    pvFotos.style.display = 'block';
+    pvFotos.innerHTML = `<h3>📷 Fotos de Referência</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">${fotos.map(src=>`<img src="${src}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);">`).join('')}</div>`;
+  } else {
+    pvFotos.style.display = 'none';
+  }
+
+  const obsEl = document.getElementById('pv-obs-section');
+  if (p.obs_final) { document.getElementById('pv-obs').textContent = p.obs_final; obsEl.style.display = 'block'; }
+  else obsEl.style.display = 'none';
+
+  const rodapeEl = document.getElementById('pv-rodape-section');
+  if (currentProfile.rodape) { document.getElementById('pv-rodape').textContent = currentProfile.rodape; rodapeEl.style.display = 'block'; }
+  else rodapeEl.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+// WHATSAPP
+// ═══════════════════════════════════════════
+function enviarWhatsApp() {
+  const wpp = v('c-wpp').replace(/\D/g,'') || (currentPropostaData.cliente_wpp||'').replace(/\D/g,'');
+  const mat = parseFloat(v('v-mat'))||0, mao=parseFloat(v('v-mao'))||0, ferr=parseFloat(v('v-ferr'))||0, out2=parseFloat(v('v-outros'))||0, marg=parseFloat(v('v-margem'))||0;
+  const sub = mat+mao+ferr+out2; const total = sub + sub*(marg/100);
+  const pgtos = [...document.querySelectorAll('.pgto-card.on')].map(c=>c.querySelector('.pl').textContent).join(', ');
+  enviarMsgWhatsApp(wpp, v('c-nome')||currentPropostaData.cliente_nome, movelSelecionado||currentPropostaData.tipo_movel, v('c-end')||currentPropostaData.cliente_end, v('m-entrega')||currentPropostaData.entrega, currentPropostaData.v_total||total, pgtos||((currentPropostaData.pgto_formas||[]).join(', ')), v('pg-condicao')||currentPropostaData.pgto_condicao, v('pg-pix')||currentPropostaData.pgto_pix, v('v-garantia')||currentPropostaData.garantia, v('obs-final')||currentPropostaData.obs_final);
+}
+
+function reenviarWhatsApp(id) {
+  const p = allPropostas.find(x => x.id === id);
+  if (!p) return;
+  const wpp = (p.cliente_wpp || '').replace(/\D/g,'');
+  const pgtos = (p.pgto_formas || []).join(', ');
+  enviarMsgWhatsApp(wpp, p.cliente_nome, p.tipo_movel, p.cliente_end, p.entrega, p.v_total, pgtos, p.pgto_condicao, p.pgto_pix, p.garantia, p.obs_final);
+  sb.from('propostas').update({ status: 'enviada', updated_at: new Date().toISOString() }).eq('id', id).then(() => carregarPropostas());
+}
+
+function enviarMsgWhatsApp(wpp, cliente, tipo, end, entrega, total, pgtos, condicao, pix, garantia, obs) {
+  const entregaFmt = entrega ? new Date(entrega+'T12:00').toLocaleDateString('pt-BR') : 'a combinar';
+  const msg =
+`Olá ${cliente || 'Cliente'}! 👋
+
+Segue sua proposta para o *${tipo}*:
+
+📍 Local: ${end || 'a confirmar'}
+📅 Entrega prevista: ${entregaFmt}
+
+💰 *Valor Total: ${fmt(total)}*
+⏳ Válido por ${currentProfile.validade || 15} dias
+
+💳 Pagamento: ${pgtos}${condicao ? '\n📋 Condição: ' + condicao : ''}${pix ? '\n📱 PIX: ' + pix : ''}${garantia ? '\n✅ Garantia: ' + garantia : ''}${obs ? '\n\n📝 ' + obs : ''}
+
+Qualquer dúvida, é só chamar! 🪚
+${currentProfile.nome || ''}${currentProfile.wpp ? ' • ' + currentProfile.wpp : ''}`;
+
+  const url = wpp ? `https://wa.me/55${wpp}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function enviarContratoWhatsApp() {
+  const p = currentPropostaData;
+  const wpp = (p.cliente_wpp || v('c-wpp') || '').replace(/\D/g,'');
+  const msg =
+`Olá ${p.cliente_nome || v('c-nome') || 'Cliente'}! 📋
+
+Segue o *Contrato de Prestação de Serviços* referente à proposta do seu *${p.tipo_movel || movelSelecionado}*.
+
+✅ O contrato está em anexo (PDF).
+📝 Por favor, assine e nos devolva uma cópia.
+
+Em caso de dúvidas, estou à disposição!
+
+${currentProfile.nome || ''}${currentProfile.wpp ? ' • ' + currentProfile.wpp : ''}`;
+  const url = wpp ? `https://wa.me/55${wpp}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+  toast('💬 WhatsApp do contrato aberto!');
+}
+
+// ═══════════════════════════════════════════
+// FORM HELPERS
+// ═══════════════════════════════════════════
+function goStep(n) {
+  document.querySelectorAll('.step-page').forEach((s,i) => s.style.display = i+1===n ? 'block' : 'none');
+  document.querySelectorAll('.step-dot').forEach((d,i) => { d.classList.remove('active','done'); if(i+1===n) d.classList.add('active'); if(i+1<n) d.classList.add('done'); });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectMovel(el, tipo) {
+  document.querySelectorAll('#movelGrid .movel-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  movelSelecionado = tipo;
+}
+
+function toggleChip(el, group) {
+  document.querySelectorAll(`#${group} .chip`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function togglePgto(el) { el.classList.toggle('on'); }
+
+function calcTotal() {
+  const mat = parseFloat(document.getElementById('v-mat')?.value)||0;
+  const mao = parseFloat(document.getElementById('v-mao')?.value)||0;
+  const ferr = parseFloat(document.getElementById('v-ferr')?.value)||0;
+  const out = parseFloat(document.getElementById('v-outros')?.value)||0;
+  const marg = parseFloat(document.getElementById('v-margem')?.value)||0;
+  const sub = mat+mao+ferr+out;
+  const vm = sub*(marg/100);
+  const total = sub+vm;
+  const mval = document.getElementById('v-margem-val');
+  const spre = document.getElementById('v-subtotal-preview');
+  const tpre = document.getElementById('v-total-preview');
+  if(mval) mval.textContent = fmt(vm);
+  if(spre) spre.textContent = fmt(sub);
+  if(tpre) tpre.textContent = fmt(total);
+}
+
+function addMedida(nome='', l='', a='', p='') {
+  const id = Date.now() + Math.random();
+  medidas.push(id);
+  const div = document.createElement('div');
+  div.className = 'medida-item';
+  div.id = 'med-'+id;
+  div.innerHTML = `
+    <input type="text" placeholder="Peça / Ambiente" value="${nome}" style="flex:1.8;min-width:90px;" id="mn-${id}">
+    <div style="display:flex;align-items:center;gap:4px;">
+      <input type="number" placeholder="0" value="${l}" style="width:62px;" id="ml-${id}" min="0" step="0.01" inputmode="decimal">
+      <span class="mi-label">L(m)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <input type="number" placeholder="0" value="${a}" style="width:62px;" id="ma-${id}" min="0" step="0.01" inputmode="decimal">
+      <span class="mi-label">A(m)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <input type="number" placeholder="0" value="${p}" style="width:62px;" id="mp-${id}" min="0" step="0.01" inputmode="decimal">
+      <span class="mi-label">P(m)</span>
+    </div>
+    <button onclick="removeMedida(${id})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:22px;line-height:1;padding:4px 6px;min-height:44px;">×</button>`;
+  document.getElementById('medidasList').appendChild(div);
+}
+
+function removeMedida(id) {
+  document.getElementById('med-'+id)?.remove();
+  medidas = medidas.filter(m => m !== id);
+}
+
+function loadFotos(input) {
+  [...input.files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => { fotosData.push(e.target.result); renderFotoGrid(); };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFotoGrid() {
+  const grid = document.getElementById('fotoGrid');
+  const ph = document.getElementById('fotoPlaceholder');
+  if (fotosData.length > 0) {
+    ph.style.display = 'none'; grid.style.display = 'flex';
+    grid.innerHTML = fotosData.map((src,i) => `<img src="${src}" class="foto-thumb" title="Toque para remover" onclick="removeFoto(${i})">`).join('') +
+      `<div class="foto-add-more" onclick="document.getElementById('fotosInput').click()">+</div>`;
+  } else {
+    ph.style.display = 'block'; grid.style.display = 'none';
+  }
+}
+
+function removeFoto(idx) { fotosData.splice(idx,1); renderFotoGrid(); }
+
+function novaPropostа() {
+  editingId = null;
+  incluirContrato = false;
+  document.getElementById('contratoCheckBox').classList.remove('on');
+  document.getElementById('contratoCheck').checked = false;
+  document.getElementById('orcTitle').textContent = 'Nova Proposta';
+  document.getElementById('btnSalvar').textContent = '💾 Salvar e Gerar Proposta';
+  ['c-nome','c-wpp','c-cpf','c-end','c-ref','m-detalhes','m-inicio','m-entrega','m-prazo-obs',
+   'v-mat','v-mao','v-ferr','v-outros','v-garantia','v-incluso','v-excluso',
+   'pg-condicao','pg-pix','obs-final'].forEach(id => set(id,''));
+  set('v-margem','30');
+  movelSelecionado = 'Cozinha Planejada';
+  document.querySelectorAll('#movelGrid .movel-card').forEach((c,i) => c.classList.toggle('on', i===0));
+  ['chapas','acabs','ferragens'].forEach(g => { document.querySelectorAll(`#${g} .chip`).forEach((c,i) => c.classList.toggle('on',i===0)); });
+  document.querySelectorAll('.pgto-card').forEach((c,i) => c.classList.toggle('on', i<2));
+  medidas = []; fotosData = [];
+  document.getElementById('medidasList').innerHTML = '';
+  renderFotoGrid();
+  calcTotal();
+  goStep(1);
+  showPage('orcamento');
+}
+
+// ═══════════════════════════════════════════
+// PDF — ORÇAMENTO PROFISSIONAL v2
+// Estilo: fundo branco, detalhes em vermelho
+// Tabela separada por ambiente (modelo 1+2)
+// ═══════════════════════════════════════════
+async function gerarPDF() {
+  toast('⏳ Gerando orçamento PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W=210, M=14;
+  // Paleta: fundo branco, vermelho, cinzas
+  const RED=[212,43,43], RED_LIGHT=[255,240,240], DARK=[20,20,20], GREY=[90,90,90];
+  const LGREY=[230,230,230], XLGREY=[246,246,246], WHITE=[255,255,255], BLACK=[0,0,0];
+  let y=0;
+
+  const p = currentPropostaData;
+  const pvTotal = fmt(p.v_total || 0);
+  const numStr  = String(p.numero || 1).padStart(3,'0');
+  const pvNum   = 'Proposta #'+numStr;
+  const hoje    = new Date(p.created_at || Date.now()).toLocaleDateString('pt-BR');
+  const ini     = p.inicio  ? new Date(p.inicio +'T12:00').toLocaleDateString('pt-BR') : 'A combinar';
+  const ent     = p.entrega ? new Date(p.entrega+'T12:00').toLocaleDateString('pt-BR') : 'A combinar';
+  const logo    = logoData || currentProfile.logo;
+
+  // ─────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────
+  function chkPg(n=20){ if(y+n>282){ doc.addPage(); y=14; drawPageBorder(); } }
+
+  function drawPageBorder(){
+    // Faixa vermelha topo da página (exceto primeira)
+    doc.setFillColor(...RED);
+    doc.rect(0,0,W,3,'F');
+    doc.setFillColor(...XLGREY);
+    doc.rect(0,3,W,6,'F');
+  }
+
+  function sectionTitle(txt){
+    chkPg(14);
+    doc.setFillColor(...XLGREY);
+    doc.rect(M, y, W-M*2, 7, 'F');
+    doc.setFillColor(...RED);
+    doc.rect(M, y, 3, 7, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8);
+    doc.setTextColor(...DARK);
+    doc.text(txt.toUpperCase(), M+6, y+5);
+    y+=10;
+  }
+
+  function labelVal(label, val, x, maxW, yPos, opts={}){
+    if(!val) return yPos;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(...GREY);
+    doc.text(label+':', x, yPos);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.setTextColor(opts.valColor||DARK);
+    const ls = doc.splitTextToSize(String(val), maxW);
+    doc.text(ls, x, yPos+4.5);
+    return yPos + 4.5 + ls.length*4.5 + 1.5;
+  }
+
+  function noteBox(title, body, bgColor=[250,250,245], borderColor=[200,200,200], titleColor=DARK){
+    if(!body) return;
+    chkPg(20);
+    const bLines = doc.splitTextToSize(String(body), W-M*2-10);
+    const bh = bLines.length*5 + (title?14:8);
+    doc.setFillColor(...bgColor);
+    doc.roundedRect(M, y, W-M*2, bh, 2, 2, 'F');
+    doc.setDrawColor(...borderColor);
+    doc.roundedRect(M, y, W-M*2, bh, 2, 2, 'S');
+    if(title){
+      doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+      doc.setTextColor(...titleColor);
+      doc.text(title, M+5, y+7);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+      doc.text(bLines, M+5, y+13);
+    } else {
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+      doc.text(bLines, M+5, y+7);
+    }
+    y += bh+5;
+  }
+
+  function hLine(color=LGREY){
+    doc.setDrawColor(...color);
+    doc.line(M, y, W-M, y);
+    y+=4;
+  }
+
+  // ─────────────────────────────────────────
+  // CABEÇALHO — Logo + Nome empresa + Box Proposta
+  // Inspirado no Modelo 1: logo à esquerda, empresa à direita, box info à direita
+  // ─────────────────────────────────────────
+  // Faixa vermelha no topo (3mm)
+  doc.setFillColor(...RED);
+  doc.rect(0, 0, W, 3, 'F');
+  y = 8;
+
+  // Logo (esquerda)
+  if(logo){
+    try{ doc.addImage(logo,'JPEG', M, y, 38, 24,'','FAST'); }catch(e){}
+  } else {
+    // Sem logo: nome em vermelho grande como "logo tipográfico"
+    doc.setFont('helvetica','bold'); doc.setFontSize(20);
+    doc.setTextColor(...RED);
+    doc.text(currentProfile.nome||'Fifty+', M, y+16);
+  }
+
+  // Dados da empresa (direita, alinhado)
+  const exRight = W-M;
+  doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.setTextColor(...DARK);
+  doc.text(currentProfile.nome||'', exRight, y+6, {align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(...GREY);
+  if(currentProfile.endereco) doc.text(currentProfile.endereco, exRight, y+11, {align:'right'});
+  if(currentProfile.cidade)   doc.text(currentProfile.cidade,   exRight, y+16, {align:'right'});
+  if(currentProfile.wpp)      doc.text('WhatsApp: '+currentProfile.wpp, exRight, y+21, {align:'right'});
+  if(currentProfile.cpf)      doc.text('CPF/CNPJ: '+currentProfile.cpf, exRight, y+26, {align:'right'});
+  y += 32;
+
+  // Linha separadora vermelha fina
+  doc.setDrawColor(...RED);
+  doc.setLineWidth(0.6);
+  doc.line(M, y, W-M, y);
+  doc.setLineWidth(0.2);
+  y += 5;
+
+  // ─────────────────────────────────────────
+  // BLOCO CLIENTE + NÚMERO DA PROPOSTA
+  // Modelo 1: cliente à esquerda, número à direita
+  // ─────────────────────────────────────────
+  // Nome do cliente (destaque)
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.setTextColor(...DARK);
+  doc.text(p.cliente_nome||'Cliente', M, y+7);
+
+  // Box Proposta Nº (direita) — como Modelo 1
+  const boxW=58, boxH=20;
+  const boxX = W-M-boxW;
+  doc.setFillColor(...XLGREY);
+  doc.roundedRect(boxX, y-1, boxW, boxH, 2, 2, 'F');
+  doc.setDrawColor(...LGREY);
+  doc.roundedRect(boxX, y-1, boxW, boxH, 2, 2, 'S');
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+  doc.text('Proposta Nº', boxX+4, y+5);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(...RED);
+  doc.text(numStr, boxX+boxW-4, y+13, {align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+  doc.text(currentProfile.cidade||'', boxX+4, y+16);
+  doc.text(hoje, boxX+boxW-4, y+16, {align:'right'});
+  y += 10;
+
+  // Dados do cliente (menor)
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+  if(p.cliente_wpp) doc.text('WhatsApp: '+p.cliente_wpp+'   ', M, y+5);
+  if(p.cliente_cpf) doc.text('CPF: '+p.cliente_cpf+'   ', M, y+5+(p.cliente_wpp?0:0));
+  const infos = [p.cliente_wpp?'WhatsApp: '+p.cliente_wpp:'', p.cliente_cpf?'CPF: '+p.cliente_cpf:'', p.cliente_end||''].filter(Boolean).join('   |   ');
+  doc.text(infos, M, y+5, {maxWidth: W-M-boxW-10});
+  y += 14;
+
+  // Linha puntilhada separadora
+  doc.setDrawColor(...LGREY); doc.setLineDashPattern([1,1],0);
+  doc.line(M,y,W-M,y); doc.setLineDashPattern([],0);
+  y += 7;
+
+  // Intro institucional
+  doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+  doc.text('Apresentamos nossa proposta personalizada para o serviço descrito abaixo.', M, y);
+  y += 10;
+
+  // ─────────────────────────────────────────
+  // TABELA DE ITENS — separada por AMBIENTE
+  // Colunas: Descrição | Detalhes | Medidas | Valor
+  // ─────────────────────────────────────────
+  chkPg(30);
+
+  // Cabeçalho da tabela
+  const tCols = { desc:62, det:66, med:36, val:W-M*2-62-66-36 };
+  const tX = { desc:M, det:M+tCols.desc, med:M+tCols.desc+tCols.det, val:W-M-tCols.val };
+
+  doc.setFillColor(...DARK);
+  doc.rect(M, y, W-M*2, 8, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...WHITE);
+  doc.text('DESCRIÇÃO',    tX.desc+3, y+5.5);
+  doc.text('DETALHES',     tX.det+3,  y+5.5);
+  doc.text('MEDIDAS',      tX.med+3,  y+5.5);
+  doc.text('VALOR TOTAL',  tX.val+tCols.val-3, y+5.5, {align:'right'});
+  y += 9;
+
+  // Linha por AMBIENTE (cada medida vira um grupo)
+  const meds = (p.medidas||[]).filter(m=>m.nome||m.l);
+  let rowIdx=0;
+
+  if(meds.length > 0){
+    // Agrupar medidas pelo nome do ambiente (ex: "Cozinha", "Quarto")
+    // Cada medida é uma linha. O tipo do móvel é o "grupo" principal.
+    // Criamos um grupo por tipo de móvel e listamos medidas embaixo
+
+    // Sub-cabeçalho do ambiente (tipo do móvel)
+    doc.setFillColor(245,245,245);
+    doc.rect(M, y, W-M*2, 7, 'F');
+    doc.setFillColor(...RED);
+    doc.rect(M, y, 2, 7, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+    doc.text(p.tipo_movel||'Móvel', M+5, y+5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+    doc.text(`Material: ${p.chapa||'—'}  |  Acabamento: ${p.acabamento||'—'}  |  Ferragens: ${p.ferragens||'—'}`, M+5, y+5+4.5);
+    y += 14;
+
+    // Uma linha por peça/medida
+    meds.forEach((m, idx)=>{
+      chkPg(10);
+      const rowH = 9;
+      // Zebra
+      if(rowIdx%2===0){ doc.setFillColor(...XLGREY); doc.rect(M,y,W-M*2,rowH,'F'); }
+      else { doc.setFillColor(255,255,255); doc.rect(M,y,W-M*2,rowH,'F'); }
+
+      // Linha vertical separadora das colunas
+      doc.setDrawColor(...LGREY);
+      [tX.det, tX.med, tX.val].forEach(cx=>doc.line(cx,y,cx,y+rowH));
+
+      const dimStr = [m.l?`L:${m.l}m`:'', m.a?`A:${m.a}m`:'', m.p?`P:${m.p}m`:''].filter(Boolean).join(' × ');
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+      doc.text(m.nome||'Peça', tX.desc+3, y+6);
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+      if(m.nome && p.detalhes && idx===0){
+        const dLines = doc.splitTextToSize(p.detalhes, tCols.det-6);
+        doc.text(dLines[0]||'', tX.det+3, y+6);
+      }
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...DARK);
+      doc.text(dimStr||'—', tX.med+3, y+6);
+
+      // Valor só na última linha (total do serviço)
+      if(idx === meds.length-1){
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...RED);
+        doc.text(pvTotal, tX.val+tCols.val-3, y+6, {align:'right'});
+      }
+
+      // Borda inferior
+      doc.setDrawColor(...LGREY);
+      doc.line(M,y+rowH,W-M,y+rowH);
+      y += rowH;
+      rowIdx++;
+    });
+
+    // Detalhes adicionais como linha extra se não couber acima
+    if(p.detalhes && meds.length > 1){
+      chkPg(8);
+      doc.setFillColor(255,252,240);
+      doc.rect(M,y,W-M*2,8,'F');
+      doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+      const dFull = doc.splitTextToSize('Detalhes: '+p.detalhes, W-M*2-6);
+      doc.text(dFull[0], M+4, y+5);
+      doc.setDrawColor(...LGREY); doc.line(M,y+8,W-M,y+8);
+      y+=9;
+    }
+
+  } else {
+    // Sem medidas: linha única com o serviço
+    chkPg(10);
+    doc.setFillColor(...XLGREY); doc.rect(M,y,W-M*2,10,'F');
+    doc.setDrawColor(...LGREY); [tX.det,tX.med,tX.val].forEach(cx=>doc.line(cx,y,cx,y+10));
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...DARK);
+    doc.text(p.tipo_movel||'Serviço', tX.desc+3, y+6.5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    doc.text(`${p.chapa||''}  ${p.acabamento||''}`, tX.det+3, y+6.5);
+    doc.text('—', tX.med+3, y+6.5);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...RED);
+    doc.text(pvTotal, tX.val+tCols.val-3, y+6.5, {align:'right'});
+    doc.setDrawColor(...LGREY); doc.line(M,y+10,W-M,y+10);
+    y+=11;
+  }
+
+  y+=2;
+
+  // ── RODAPÉ DA TABELA: Subtotal + Total ──
+  // (sem breakdown de custos — cliente vê só o total)
+  chkPg(16);
+  const totX = W-M-70;
+
+  // Subtotal (= total, pois o cliente não vê breakdown)
+  doc.setFillColor(...XLGREY);
+  doc.rect(totX, y, 70, 7, 'F');
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+  doc.text('Subtotal', totX+4, y+5);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...DARK);
+  doc.text(pvTotal, W-M-3, y+5, {align:'right'});
+  y+=8;
+
+  // TOTAL FINAL — destaque grande
+  doc.setFillColor(...DARK);
+  doc.rect(M, y, W-M*2, 14, 'F');
+  doc.setFillColor(...RED);
+  doc.rect(M, y, 4, 14, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(180,180,180);
+  doc.text('VALOR TOTAL DO SERVIÇO', M+8, y+9);
+  doc.setFontSize(16); doc.setTextColor(255,255,255);
+  doc.text(pvTotal, W-M-4, y+10, {align:'right'});
+  y+=20;
+
+  // ─────────────────────────────────────────
+  // GRID CONDIÇÕES — 2×2 (Modelo 1+3)
+  // Vendedor | Validade | Prazo Início | Prazo Entrega
+  // ─────────────────────────────────────────
+  chkPg(24);
+  const gc = (W-M*2)/4; // largura de cada célula
+  const cells = [
+    {label:'Vendedor / Responsável', val: currentProfile.nome||'—'},
+    {label:'Validade da Proposta',   val: (currentProfile.validade||15)+' dias'},
+    {label:'Início Previsto',        val: ini},
+    {label:'Cond. Pagamento',        val: p.pgto_condicao||'A combinar'},
+  ];
+  doc.setDrawColor(...LGREY);
+  doc.rect(M, y, W-M*2, 16, 'S');
+  cells.forEach((c,i)=>{
+    const cx = M + i*gc;
+    if(i>0){ doc.setDrawColor(...LGREY); doc.line(cx,y,cx,y+16); }
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...DARK);
+    doc.text(c.label, cx+3, y+6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    doc.text(c.val, cx+3, y+12);
+  });
+  y+=20;
+
+  // Segunda linha: entrega + pgto + garantia + validade do orç
+  const cells2 = [
+    {label:'Prazo de Entrega',    val: ent},
+    {label:'Formas de Pagamento', val: (p.pgto_formas||[]).join(', ')||'—'},
+    {label:'Garantia',            val: p.garantia||'Conforme acordado'},
+    {label:'Chave PIX',           val: p.pgto_pix||'—'},
+  ];
+  doc.setDrawColor(...LGREY);
+  doc.rect(M, y, W-M*2, 16, 'S');
+  cells2.forEach((c,i)=>{
+    const cx = M + i*gc;
+    if(i>0){ doc.setDrawColor(...LGREY); doc.line(cx,y,cx,y+16); }
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...DARK);
+    doc.text(c.label, cx+3, y+6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    const ls = doc.splitTextToSize(c.val, gc-6);
+    doc.text(ls[0]||'—', cx+3, y+12);
+  });
+  y+=22;
+
+  // ─────────────────────────────────────────
+  // BOXES: Incluso / Não incluso / Observações / Rodapé
+  // ─────────────────────────────────────────
+  if(p.incluso || p.excluso){
+    chkPg(20);
+    const half = (W-M*2-5)/2;
+    if(p.incluso){
+      const iLines = doc.splitTextToSize(p.incluso, half-10);
+      const ih = iLines.length*4.5+14;
+      doc.setFillColor(240,255,245); doc.roundedRect(M,y,half,ih,2,2,'F');
+      doc.setDrawColor(180,220,195); doc.roundedRect(M,y,half,ih,2,2,'S');
+      doc.setFillColor(26,122,74); doc.roundedRect(M,y,half,7,2,2,'F');
+      doc.rect(M,y+4,half,3,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...WHITE);
+      doc.text('INCLUSO NO SERVICO', M+4, y+5);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(40,100,60);
+      doc.text(iLines, M+4, y+12);
+      const boxInclH = ih;
+      if(p.excluso){
+        const eLines = doc.splitTextToSize(p.excluso, half-10);
+        const eh = eLines.length*4.5+14;
+        const ex2 = M+half+5;
+        doc.setFillColor(255,242,242); doc.roundedRect(ex2,y,half,eh,2,2,'F');
+        doc.setDrawColor(220,180,180); doc.roundedRect(ex2,y,half,eh,2,2,'S');
+        doc.setFillColor(...RED); doc.roundedRect(ex2,y,half,7,2,2,'F');
+        doc.rect(ex2,y+4,half,3,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...WHITE);
+        doc.text('NAO INCLUSO', ex2+4, y+5);
+        doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(150,40,40);
+        doc.text(eLines, ex2+4, y+12);
+        y += Math.max(boxInclH, eh)+6;
+      } else { y += ih+6; }
+    } else if(p.excluso){
+      const eLines = doc.splitTextToSize(p.excluso, W-M*2-10);
+      const eh = eLines.length*4.5+14;
+      doc.setFillColor(255,242,242); doc.roundedRect(M,y,W-M*2,eh,2,2,'F');
+      doc.setDrawColor(220,180,180); doc.roundedRect(M,y,W-M*2,eh,2,2,'S');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...RED);
+      doc.text('NAO INCLUSO NESTE ORCAMENTO:', M+4, y+7);
+      doc.setFont('helvetica','normal'); doc.setTextColor(150,40,40);
+      doc.text(eLines, M+4, y+13);
+      y += eh+6;
+    }
+  }
+
+  // Observações da proposta
+  noteBox('Observacoes da Proposta', p.obs_final, [255,253,240],[220,210,170], DARK);
+
+  // Rodapé da empresa
+  if(currentProfile.rodape){
+    noteBox(null, currentProfile.rodape, [246,246,246],[220,220,220], GREY);
+  }
+
+  // ─────────────────────────────────────────
+  // FOTOS DE REFERÊNCIA
+  // ─────────────────────────────────────────
+  const allFotos = p.fotos || fotosData || [];
+  if(allFotos.length>0){
+    chkPg(45); sectionTitle('Fotos de Referencia');
+    const fW=42, fH=36, gap=4; let fx=M;
+    for(let i=0;i<allFotos.length;i++){
+      if(fx+fW>W-M){ fx=M; y+=fH+gap+2; chkPg(fH+gap); }
+      try{ doc.addImage(allFotos[i],'JPEG',fx,y,fW,fH,'','FAST'); }catch(e){}
+      fx+=fW+gap;
+    }
+    y+=fH+8;
+  }
+
+  // ─────────────────────────────────────────
+  // ASSINATURA (Modelo 1: 3 linhas — Nome | Assinatura | Data)
+  // ─────────────────────────────────────────
+  chkPg(38);
+  y+=6;
+  doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(...GREY);
+  doc.text(`${currentProfile.cidade||''}, ${hoje}`, M, y);
+  y+=12;
+
+  const sigW = (W-M*2-12)/3;
+  [
+    {label:'Nome Legível', sub: p.cliente_nome||''},
+    {label:'Assinatura',   sub: ''},
+    {label:'Data',         sub: hoje},
+  ].forEach((s,i)=>{
+    const sx = M + i*(sigW+6);
+    doc.setDrawColor(120,120,120);
+    doc.line(sx, y, sx+sigW, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+    doc.text(s.label, sx, y+4);
+    if(s.sub){ doc.setTextColor(150,150,150); doc.setFontSize(7); doc.text(s.sub, sx, y+8); }
+  });
+  y+=18;
+
+  // CPFs embaixo
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(180,180,180);
+  if(currentProfile.cpf) doc.text(`Marceneiro – CPF/CNPJ: ${currentProfile.cpf}`, M, y);
+  if(p.cliente_cpf) doc.text(`Cliente – CPF: ${p.cliente_cpf}`, W-M, y, {align:'right'});
+
+  // ─────────────────────────────────────────
+  // FOOTER em todas as páginas
+  // ─────────────────────────────────────────
+  const pages = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    // Faixa vermelha base
+    doc.setFillColor(...RED);
+    doc.rect(0,287,W,10,'F');
+    // Texto footer
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...WHITE);
+    doc.text('Proposta gerada por Fifty+ | fiftymais.com.br', M, 293);
+    doc.text(`Pagina ${i} de ${pages}`, W-M, 293, {align:'right'});
+    // Linha topo vermelha em páginas 2+
+    if(i>1){
+      doc.setFillColor(...RED); doc.rect(0,0,W,3,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...GREY);
+      doc.text(currentProfile.nome||'', M, 9);
+      doc.text(pvNum, W-M, 9, {align:'right'});
+    }
+  }
+
+  const nomeCliente = (p.cliente_nome||'Cliente').replace(/\s/g,'_');
+  doc.save(`Orcamento_${nomeCliente}_${hoje.replace(/\//g,'-')}.pdf`);
+  toast('✅ Orçamento PDF baixado!');
+
+}
+
+// ═══════════════════════════════════════════
+// PDF — CONTRATO DE SERVIÇO
+// ═══════════════════════════════════════════
+async function gerarContratoPDF() {
+  toast('⏳ Gerando contrato PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W=210, M=20;
+  const DARK=[26,26,26], GREY=[80,80,80], LGREY=[235,235,235], RED=[212,43,43];
+  let y=0;
+
+  const p = currentPropostaData;
+  const hoje = new Date(p.created_at || Date.now()).toLocaleDateString('pt-BR');
+  const ent = p.entrega ? new Date(p.entrega+'T12:00').toLocaleDateString('pt-BR') : '___/___/______';
+  const ini = p.inicio ? new Date(p.inicio+'T12:00').toLocaleDateString('pt-BR') : '___/___/______';
+  const pvTotal = fmt(p.v_total || 0);
+  const num = String(p.numero||1).padStart(3,'0');
+  const cidade = currentProfile.cidade || '_______________';
+
+  // Helpers
+  function chkPg(n=20){ if(y+n>275){ doc.addPage(); y=18; } }
+  function titulo(txt){
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...DARK);
+    doc.setFillColor(...LGREY); doc.rect(M,y-3,W-M*2,8,'F');
+    doc.setFillColor(...RED); doc.rect(M,y-3,3,8,'F');
+    doc.text(txt, M+6, y+2);
+    y+=10;
+  }
+  function corpo(txt, indent=0){
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
+    const lines = doc.splitTextToSize(txt, W-M*2-indent);
+    lines.forEach(l=>{ chkPg(6); doc.text(l, M+indent, y); y+=5.5; });
+    y+=2;
+  }
+  function bold(txt, indent=0){
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...DARK);
+    const lines = doc.splitTextToSize(txt, W-M*2-indent);
+    lines.forEach(l=>{ chkPg(6); doc.text(l, M+indent, y); y+=5.5; });
+    y+=1;
+  }
+  function campo(label, valor){
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+    doc.text(label+': ', M+4, y);
+    const lw = doc.getTextWidth(label+': ');
+    doc.setFont('helvetica','normal'); doc.setTextColor(...GREY);
+    const ls = doc.splitTextToSize(valor||'—', W-M*2-4-lw);
+    doc.text(ls[0]||'—', M+4+lw, y);
+    y+=6;
+    if(ls.length>1){ ls.slice(1).forEach(l=>{ doc.text(l, M+4+lw, y); y+=5.5; }); }
+  }
+
+  // ── HEADER ──
+  doc.setFillColor(...DARK);
+  doc.rect(0, 0, W, 40, 'F');
+  doc.setFillColor(...RED);
+  doc.rect(0, 36, W, 4, 'F');
+
+  const logoC = logoData || currentProfile.logo;
+  if(logoC){ try { doc.addImage(logoC,'JPEG',W-M-34,6,30,18,'','FAST'); } catch(e){} }
+  else {
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...RED);
+    doc.text(currentProfile.nome||'', W-M, 20, {align:'right'});
+  }
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(255,255,255);
+  doc.text('CONTRATO DE PRESTAÇÃO', M, 16);
+  doc.text('DE SERVIÇOS DE MARCENARIA', M, 24);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(180,180,180);
+  doc.text(`Contrato Nº ${num}  •  Emitido em ${hoje}`, M, 33);
+  y=48;
+
+  // ── PARTES ──
+  titulo('CLÁUSULA 1ª – DAS PARTES');
+  bold('CONTRATADO (Marceneiro):');
+  campo('Nome / Razão Social', currentProfile.nome || '');
+  campo('CPF / CNPJ', currentProfile.cpf || '');
+  campo('Endereço', currentProfile.endereco || currentProfile.cidade || '');
+  campo('WhatsApp', currentProfile.wpp || '');
+  y+=2;
+  bold('CONTRATANTE (Cliente):');
+  campo('Nome completo', p.cliente_nome || '');
+  campo('CPF', p.cliente_cpf || '');
+  campo('Endereço', p.cliente_end || '');
+  campo('WhatsApp', p.cliente_wpp || '');
+  y+=3;
+
+  // ── OBJETO ──
+  chkPg(30); titulo('CLÁUSULA 2ª – DO OBJETO');
+  corpo('O CONTRATADO compromete-se a executar os seguintes serviços de marcenaria sob medida para o CONTRATANTE:');
+  campo('Tipo de Móvel', p.tipo_movel || '');
+  campo('Material (Chapa)', p.chapa || '');
+  campo('Acabamento', p.acabamento || '');
+  campo('Ferragens', p.ferragens || '');
+  if(p.detalhes) campo('Detalhes', p.detalhes);
+  const meds = (p.medidas||[]).filter(m=>m.nome||m.l);
+  if(meds.length>0){
+    bold('Medidas:', 4);
+    meds.forEach(m=>{
+      corpo(`• ${m.nome||'Peça'}${m.l?' – L:'+m.l+'m':''}${m.a?' x A:'+m.a+'m':''}${m.p?' x P:'+m.p+'m':''}`, 8);
+    });
+  }
+  if(p.incluso){ y+=2; bold('Está incluído:'); corpo(p.incluso, 4); }
+  if(p.excluso){ bold('NÃO está incluído:'); corpo(p.excluso, 4); }
+  y+=3;
+
+  // ── PRAZO ──
+  chkPg(25); titulo('CLÁUSULA 3ª – DO PRAZO');
+  corpo(`O serviço terá início previsto em ${ini} e deverá ser concluído e entregue até ${ent}.`);
+  corpo('O prazo poderá ser alterado mediante acordo formal entre as partes, especialmente nos casos de atraso no pagamento das parcelas ou alterações no escopo do serviço solicitadas pelo CONTRATANTE.');
+  if(p.prazo_obs){ corpo(`Observação sobre prazo: ${p.prazo_obs}`); }
+  y+=3;
+
+  // ── VALOR ──
+  chkPg(35); titulo('CLÁUSULA 4ª – DO VALOR E FORMA DE PAGAMENTO');
+  doc.setFillColor(26,26,26); doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(180,180,180);
+  doc.text('VALOR TOTAL DO SERVIÇO', M+5, y+9);
+  doc.setFontSize(14); doc.setTextColor(...RED);
+  doc.text(pvTotal, W-M-5, y+10, {align:'right'});
+  y+=19;
+  const pgtoStr = (p.pgto_formas||[]).join(', ') || 'A combinar';
+  corpo(`Formas de pagamento aceitas: ${pgtoStr}.`);
+  if(p.pgto_condicao) corpo(`Condição de pagamento: ${p.pgto_condicao}.`);
+  if(p.pgto_pix) corpo(`Chave PIX para pagamento: ${p.pgto_pix}.`);
+  corpo('O não pagamento nas datas acordadas sujeitará o CONTRATANTE a multa de 2% (dois por cento) sobre o valor em atraso, acrescida de juros de 1% (um por cento) ao mês, pro rata die.');
+  corpo('Em caso de atraso superior a 15 (quinze) dias, o CONTRATADO poderá suspender a execução dos serviços até a regularização do pagamento.');
+  y+=3;
+
+  // ── OBRIGAÇÕES DO CONTRATADO ──
+  chkPg(35); titulo('CLÁUSULA 5ª – OBRIGAÇÕES DO CONTRATADO');
+  corpo('São obrigações do CONTRATADO:');
+  corpo('a) Executar os serviços com qualidade e nos prazos estabelecidos neste contrato;', 4);
+  corpo('b) Utilizar materiais compatíveis com as especificações acordadas;', 4);
+  corpo('c) Manter o CONTRATANTE informado sobre o andamento dos serviços;', 4);
+  corpo('d) Apresentar garantia sobre os serviços executados conforme cláusula de garantia;', 4);
+  corpo('e) Zelar pela segurança e limpeza do local durante a instalação.', 4);
+  y+=3;
+
+  // ── OBRIGAÇÕES DO CONTRATANTE ──
+  chkPg(35); titulo('CLÁUSULA 6ª – OBRIGAÇÕES DO CONTRATANTE');
+  corpo('São obrigações do CONTRATANTE:');
+  corpo('a) Efetuar os pagamentos nas datas e formas acordadas;', 4);
+  corpo('b) Garantir acesso ao local da instalação nos horários combinados;', 4);
+  corpo('c) Disponibilizar o local em condições adequadas para execução dos serviços;', 4);
+  corpo('d) Comunicar ao CONTRATADO, no prazo de 48 horas após a entrega, qualquer inconformidade ou defeito nos móveis;', 4);
+  corpo('e) Não realizar alterações nos móveis sem prévia autorização do CONTRATADO durante o período de garantia.', 4);
+  y+=3;
+
+  // ── GARANTIA ──
+  chkPg(25); titulo('CLÁUSULA 7ª – DA GARANTIA');
+  const garStr = p.garantia || '90 (noventa) dias contra defeitos de fabricação';
+  corpo(`O CONTRATADO oferece garantia de ${garStr} para os serviços executados, contados a partir da data de entrega e aceite pelo CONTRATANTE.`);
+  corpo('A garantia não cobre danos causados por mau uso, acidente, modificações realizadas por terceiros, ou problemas decorrentes de umidade excessiva, infiltrações ou outros fatores externos alheios à execução do serviço.');
+  y+=3;
+
+  // ── ALTERAÇÕES ──
+  chkPg(25); titulo('CLÁUSULA 8ª – DAS ALTERAÇÕES DE ESCOPO');
+  corpo('Quaisquer alterações nas especificações originais do serviço, solicitadas pelo CONTRATANTE após a assinatura deste contrato, deverão ser formalizadas por escrito (mensagem de texto, e-mail ou aditivo contratual) e poderão gerar custos adicionais e/ou alteração nos prazos, a serem negociados entre as partes.');
+  y+=3;
+
+  // ── RESCISÃO ──
+  chkPg(30); titulo('CLÁUSULA 9ª – DA RESCISÃO');
+  corpo('Este contrato poderá ser rescindido por qualquer das partes mediante comunicação prévia de 5 (cinco) dias úteis, nas seguintes condições:');
+  corpo('a) Rescisão pelo CONTRATANTE: ficará sujeito ao pagamento dos serviços já executados, calculados proporcionalmente ao total contratado, acrescido de multa compensatória de 20% sobre o valor restante do contrato;', 4);
+  corpo('b) Rescisão pelo CONTRATADO: ficará obrigado a devolver os valores pagos referentes aos serviços não executados, sem qualquer multa;', 4);
+  corpo('c) Rescisão por inadimplemento: em caso de não pagamento pelo CONTRATANTE, o CONTRATADO poderá rescindir imediatamente o contrato, retendo os materiais adquiridos e cobrando pelos serviços já executados.', 4);
+  y+=3;
+
+  // ── FORO ──
+  chkPg(20); titulo('CLÁUSULA 10ª – DO FORO');
+  corpo(`As partes elegem o Foro da Comarca de ${cidade.split('/')[0].trim() || 'domicílio do CONTRATADO'} para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.`);
+  y+=4;
+
+  // ── DECLARAÇÃO ──
+  chkPg(20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GREY);
+  doc.text(`E por estarem justos e contratados, as partes assinam o presente instrumento em 2 (duas) vias de igual teor e forma, na cidade de ${cidade.split('/')[0].trim()}, em ${hoje}.`, M, y, {maxWidth: W-M*2});
+  y+=14;
+
+  // ── ASSINATURAS ──
+  chkPg(50);
+  const lw2 = (W-M*2-10)/2;
+  doc.setDrawColor(100,100,100);
+
+  // Assinatura 1 - Contratado
+  doc.line(M, y, M+lw2, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+  doc.text('CONTRATADO – MARCENEIRO', M, y+5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+  doc.text(currentProfile.nome||'', M, y+10);
+  if(currentProfile.cpf) doc.text(`CPF/CNPJ: ${currentProfile.cpf}`, M, y+15);
+
+  // Assinatura 2 - Contratante
+  doc.setDrawColor(100,100,100);
+  doc.line(M+lw2+10, y, W-M, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+  doc.text('CONTRATANTE – CLIENTE', M+lw2+10, y+5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+  doc.text(p.cliente_nome||'', M+lw2+10, y+10);
+  if(p.cliente_cpf) doc.text(`CPF: ${p.cliente_cpf}`, M+lw2+10, y+15);
+  y+=28;
+
+  // Testemunhas
+  chkPg(30);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
+  doc.text('TESTEMUNHAS:', M, y); y+=8;
+  const twL = (W-M*2-10)/2;
+  doc.setDrawColor(180,180,180);
+  doc.line(M, y, M+twL, y);
+  doc.line(M+twL+10, y, W-M, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(180,180,180);
+  doc.text('Nome / CPF', M, y+5);
+  doc.text('Nome / CPF', M+twL+10, y+5);
+
+  // ── FOOTER ──
+  const pages = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFillColor(...DARK); doc.rect(0, 288, W, 9, 'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(180,180,180);
+    doc.text('Contrato gerado por Fifty+ | fiftymais.com.br | Este documento tem valor jurídico quando assinado pelas partes.', M, 293.5);
+    doc.text(`Pg. ${i}/${pages}`, W-M, 293.5, {align:'right'});
+  }
+
+  const nomeCliente = (p.cliente_nome||'Cliente').replace(/\s/g,'_');
+  doc.save(`Contrato_${nomeCliente}_${hoje.replace(/\//g,'-')}.pdf`);
+  toast('✅ Contrato PDF baixado!');
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function v(id) { return document.getElementById(id)?.value || ''; }
+function set(id, val) { const el = document.getElementById(id); if(el) el.value = val ?? ''; }
+function set2(id, val) { const el = document.getElementById(id); if(el) el.textContent = val || ''; }
+function toggle(id, show) { const el = document.getElementById(id); if(el) el.style.display = show ? '' : 'none'; }
+function fmt(val) { return 'R$ ' + (val||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Máscara CPF simples
+document.addEventListener('input', function(e){
+  if(e.target.id === 'c-cpf') {
+    let v = e.target.value.replace(/\D/g,'');
+    if(v.length<=11) v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    else v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/,'$1.$2.$3/$4-$5');
+    e.target.value = v;
+  }
+  if(e.target.id === 'p-cpf') {
+    let val = e.target.value.replace(/\D/g,'');
+    if(val.length<=11) val = val.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    else val = val.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/,'$1.$2.$3/$4-$5');
+    e.target.value = val;
+  }
+});
+
+// ═══════════════════════════════════════════
+// WIDGET FLUTUANTE — CALCULADORA + TRENA
+// ═══════════════════════════════════════════
+
+// ── FAB / PAINEL ──
+function toggleWidget() {
+  const panel = document.getElementById('widgetPanel');
+  const btn   = document.getElementById('fabBtn');
+  const open  = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? '🧮' : '✕';
+  btn.classList.toggle('open', !open);
+}
+
+function switchWidget(tab) {
+  document.querySelectorAll('.widget-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.widget-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('w' + (tab==='calc'?'Calc':'Trena')).classList.add('active');
+  document.getElementById('tab' + (tab==='calc'?'Calc':'Trena')).classList.add('active');
+}
+
+// Fechar widget ao clicar fora
+document.addEventListener('click', function(e){
+  const panel = document.getElementById('widgetPanel');
+  const fab   = document.getElementById('fabWidget');
+  if(panel && panel.style.display==='block' && !fab.contains(e.target)){
+    panel.style.display='none';
+    document.getElementById('fabBtn').textContent='🧮';
+    document.getElementById('fabBtn').classList.remove('open');
+  }
+});
+
+// Mostrar FAB só quando logado
+function showFab(){ document.getElementById('fabWidget').style.display='block'; }
+function hideFab(){ document.getElementById('fabWidget').style.display='none'; }
+
+// ── CALCULADORA ──
+let calcExpr    = '';
+let calcHistory = [];
+let justEvaled  = false;
+
+function calcNum(n) {
+  if(justEvaled && n !== ',') { calcExpr = ''; justEvaled = false; }
+  // Evitar dupla vírgula no mesmo número
+  if(n === ',') {
+    const parts = calcExpr.split(/[+\-×÷()%]/);
+    const last = parts[parts.length-1];
+    if(last.includes('.')) return;
+    n = '.';
+  }
+  calcExpr += n;
+  updateCalcDisplay();
+}
+
+function calcOp(op) {
+  justEvaled = false;
+  if(calcExpr === '' && op !== '(') return;
+  // Evitar dois operadores seguidos (exceto parênteses)
+  const last = calcExpr.slice(-1);
+  if('+-×÷%'.includes(last) && '+-×÷%'.includes(op)) {
+    calcExpr = calcExpr.slice(0,-1);
+  }
+  calcExpr += op;
+  updateCalcDisplay();
+}
+
+function calcDel() {
+  justEvaled = false;
+  calcExpr = calcExpr.slice(0,-1);
+  updateCalcDisplay();
+}
+
+function calcAC() {
+  calcExpr = ''; justEvaled = false;
+  document.getElementById('calcResult').textContent = '0';
+  document.getElementById('calcExpr').textContent   = '';
+}
+
+function calcEqual() {
+  if(!calcExpr) return;
+  try {
+    const expr = calcExpr
+      .replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')
+      .replace(/,/g,'.').replace(/%/g, '/100');
+    const result = Function('"use strict"; return (' + expr + ')')();
+    if(isNaN(result) || !isFinite(result)){
+      document.getElementById('calcResult').textContent = 'Erro';
+      return;
+    }
+    const resultStr = parseFloat(result.toFixed(8)).toString().replace('.',',');
+    // Guardar histórico
+    calcHistory.unshift({ expr: calcExpr, val: resultStr });
+    if(calcHistory.length > 20) calcHistory.pop();
+    renderCalcHistory();
+    document.getElementById('calcExpr').textContent   = calcExpr + ' =';
+    document.getElementById('calcResult').textContent = resultStr;
+    calcExpr = result.toString();
+    justEvaled = true;
+  } catch(e) {
+    document.getElementById('calcResult').textContent = 'Erro';
+  }
+}
+
+function updateCalcDisplay() {
+  document.getElementById('calcExpr').textContent   = calcExpr || '';
+  // Preview em tempo real
+  try {
+    const expr = calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/,/g,'.').replace(/%/g,'/100');
+    const r = Function('"use strict"; return (' + expr + ')')();
+    if(!isNaN(r) && isFinite(r)){
+      document.getElementById('calcResult').textContent = parseFloat(r.toFixed(8)).toString().replace('.',',');
+    }
+  } catch(e) {
+    if(calcExpr === '') document.getElementById('calcResult').textContent = '0';
+  }
+}
+
+function toggleCalcHist() {
+  document.getElementById('calcHistory').classList.toggle('show');
+}
+
+function renderCalcHistory() {
+  const el = document.getElementById('calcHistory');
+  if(!calcHistory.length){ el.innerHTML = '<div style="font-size:12px;color:#AAA;padding:6px 0;text-align:center">Nenhum cálculo ainda</div>'; return; }
+  el.innerHTML = calcHistory.map(h =>
+    `<div class="hist-item">
+       <span class="hist-expr">${h.expr}</span>
+       <span class="hist-val" onclick="usarHistorico('${h.val}')" title="Usar valor">${h.val}</span>
+     </div>`
+  ).join('');
+}
+
+function usarHistorico(val) {
+  calcExpr = val.replace(',','.');
+  justEvaled = false;
+  updateCalcDisplay();
+  // Fechar histórico
+  document.getElementById('calcHistory').classList.remove('show');
+}
+
+// ── TRENA ──
+function calcTrena() {
+  const L = parseFloat(document.getElementById('trL').value) || 0;
+  const A = parseFloat(document.getElementById('trA').value) || 0;
+  const P = parseFloat(document.getElementById('trP').value) || 0;
+
+  // Animar barras proporcionalmente
+  const maxDim = Math.max(L, A, P, 0.01);
+  const containerW = document.getElementById('tapeL').parentElement.offsetWidth || 200;
+  const maxPx = containerW - 8;
+
+  function setTape(id, txtId, val) {
+    const px = Math.max(8, Math.round((val / maxDim) * maxPx));
+    document.getElementById(id).style.width = px + 'px';
+    document.getElementById(txtId).textContent = val > 0 ? val.toFixed(2) + 'm' : '—';
+  }
+  setTape('tapeL','tapeLtxt', L);
+  setTape('tapeA','tapeAtxt', A);
+  setTape('tapeP','tapePtxt', P);
+
+  // Cálculos
+  const area   = L > 0 && A > 0 ? L * A : 0;
+  const vol    = L > 0 && A > 0 && P > 0 ? L * A * P : 0;
+  const perim  = L > 0 && A > 0 ? 2*L + 2*A : 0;
+
+  document.getElementById('trArea').textContent  = area  > 0 ? area.toFixed(3)  + ' m²' : '—';
+  document.getElementById('trVol').textContent   = vol   > 0 ? vol.toFixed(3)   + ' m³' : '—';
+  document.getElementById('trPerim').textContent = perim > 0 ? perim.toFixed(2) + ' m'  : '—';
+
+  // Estimativa chapas MDF 2,75m × 1,84m (área útil ~4,96m² por chapa, fator desperdício 1,15)
+  if(L > 0 && A > 0) {
+    // Superfície total do móvel: frontal + traseira + laterais + fundo + topo
+    // Estimativa simplificada: área total de painéis ≈ 2*(L*A) + 2*(P*A) + 2*(L*P)
+    let supTotal = 0;
+    if(P > 0) supTotal = 2*(L*A) + 2*(P*A) + 2*(L*P);
+    else supTotal = 2 * (L*A); // sem profundidade: só frente e verso
+
+    const fatorDesperdicio = 1.15; // 15% de perda no corte
+    const areaChapa = 2.75 * 1.84; // 5,06 m²
+    const areaTotal = supTotal * fatorDesperdicio;
+    const numChapas = Math.ceil(areaTotal / areaChapa);
+
+    document.getElementById('trChapas').textContent = numChapas + ' chapa' + (numChapas !== 1 ? 's' : '');
+    document.getElementById('trM2').textContent     = areaTotal.toFixed(2) + ' m² total';
+  } else {
+    document.getElementById('trChapas').textContent = '—';
+    document.getElementById('trM2').textContent     = '—';
+  }
+}
+
+function limparTrena() {
+  ['trL','trA','trP'].forEach(id => { document.getElementById(id).value = ''; });
+  ['tapeL','tapeA','tapeP'].forEach(id => { document.getElementById(id).style.width = '8px'; });
+  ['tapeLtxt','tapeAtxt','tapePtxt'].forEach(id => { document.getElementById(id).textContent = '—'; });
+  ['trArea','trVol','trPerim','trChapas','trM2'].forEach(id => { document.getElementById(id).textContent = '—'; });
+}
+
+</script>
+</body>
+</html>
